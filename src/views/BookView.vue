@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { inject } from 'vue';
 import { useRoute } from 'vue-router';
 
-const props = defineProps(["books"])
+const props = inject()
 
 const route = useRoute()
 
