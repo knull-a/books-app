@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import BooksList from './components/SearchQuery.vue';
-
+import { RouterView } from 'vue-router';
 
 </script>
 
@@ -11,7 +10,7 @@ import BooksList from './components/SearchQuery.vue';
     </nav>
   </header>
   <main class="main">
-    <BooksList />
+    <RouterView />
   </main>
 </template>
 

@@ -10,8 +10,11 @@ interface Book {
     imageLinks: {
       smallThumbnail: string;
       thumbnail: string;
+      medium: string;
+      large: string;
+      extraLarge: string;
     };
-    previewLink: string;
+    averageRating: string;
 }
 
 export type {Book}
