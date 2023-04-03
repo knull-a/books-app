@@ -5,3 +5,4 @@ export function useStarRating(rating: number): string {
     const stars = '★'.repeat(filledStars) + '☆'.repeat(remainingStars);
     return stars;
 }
+// export const useStarRating = (rating: number) => '★'.repeat(Math.round(rating)) + '☆'.repeat(5 - Math.round(rating));
