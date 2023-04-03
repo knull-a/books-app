@@ -8,11 +8,12 @@ import { useBooksStore } from '@/stores/bookList';
 import { useStarRating } from '@/composables/starRating';
 import { provide } from 'vue';
 import axios from 'axios';
+import type { Book, SingleBook } from '@/types/book'
 
 const route = useRoute()
 const bookList = useBooksStore()
 
-const book = ref<any>()
+const book = ref<SingleBook>()
 
 const isLoading = ref(false)
 
@@ -20,6 +21,7 @@ const isDetailsOpened = ref(false)
 
 console.log(route.params.id)
 
+provide('book', book)
 
 
 onMounted(async () => {
@@ -28,10 +30,12 @@ onMounted(async () => {
         const url = `https://www.googleapis.com/books/v1/volumes/${route.params.id}?projection=full&key=${bookList.apiKey}`
         const response = await axios.get(url)
         book.value = response.data
+        
     } catch(error) {
         console.error(error)
     } finally {
         isLoading.value = false
+        
     }
 })
 
@@ -54,8 +58,8 @@ onMounted(async () => {
             <p class="book__author" v-for="author in book?.volumeInfo.authors">{{ book?.volumeInfo.authors.toString().replace(/,/g, ", ") }}</p>
         </div>
         <div class="book__rating">
-            <span class="book__rating_stars">{{ useStarRating(parseInt(book?.volumeInfo.averageRating)) || "☆☆☆☆☆" }}</span>
-            <span class="book__rating_count">{{ book?.volumeInfo.ratingsCount }} {{ book?.volumeInfo.ratingsCount === 1 ? "rating" : "ratings" }}</span>
+            <span class="book__rating_stars">{{ useStarRating(book?.volumeInfo.averageRating ?? 0) || "☆☆☆☆☆" }}</span>
+            <span class="book__rating_count">{{ book?.volumeInfo.ratingsCount || 0 }} {{ book?.volumeInfo.ratingsCount === 1 ? "rating" : "ratings" }}</span>
         </div>
         <p class="book__description">{{ book?.volumeInfo.description.replace(/<.*?>/g, '') || "There is no description." }}</p>
         <div class="book__categories">
