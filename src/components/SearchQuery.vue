@@ -12,10 +12,6 @@ const isLoading = ref(false)
 
 const searchQuery = ref("")
 
-// const changePage = (item: number) => {
-//     if (item === 1) getBooks(10, item - 1)
-//     else getBooks(10, item * 10)
-// }
 
 const page = ref(0)
 
@@ -30,13 +26,16 @@ const previousPage = () => {
 const nextPage = () => {
     getBooks(10, page.value += 10)
 }
+const order = ref('relevance')
 
+console.log(order.value)
 
 async function getBooks(limit?: number, skip?: number) {
     try {
         if (searchQuery.value === '') return
         [isLoading.value, hasData.value] = [true, true]
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery.value}&startIndex=${skip || 0}&maxResults=${limit || 10}&key=${bookList.apiKey}`;
+        const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery.value}&orderBy=${order.value}&startIndex=${skip || 0}&maxResults=${limit || 10}&key=${bookList.apiKey}`;
+        console.log(url)
         const response = await axios.get(url);
         totalBooks.value = response.data.totalItems
         bookList.books = response.data.items.map((item: any) => ({
@@ -69,6 +68,10 @@ async function getBooks(limit?: number, skip?: number) {
         <div class="search__box">
             <input type="text" v-model="searchQuery" @keypress.enter="getBooks()">
             <button @click="getBooks()">Search</button>
+            <select name="sort" v-model="order">
+                <option value="relevance">relevance</option>
+                <option value="newest">newest</option>
+            </select>
         </div>
         <div class="search__list">
             <div class="search__loading" v-if="isLoading">Loading...</div>
