@@ -6,6 +6,7 @@ import { RouterLink, useRouter } from 'vue-router';
 import { useBooksStore } from '@/stores/bookList';
 import { useStarRating } from '@/composables/starRating';
 
+
 const bookList = useBooksStore()
 
 const isLoading = ref(false)
@@ -65,36 +66,34 @@ async function getBooks(limit?: number, skip?: number) {
 
 <template>
     <div class="search">
-        <div class="search__box">
+        <div class="search__box d-flex text-center">
             <input type="text" v-model="searchQuery" @keypress.enter="getBooks()">
-            <button @click="getBooks()">Search</button>
-            <select name="sort" v-model="order">
-                <option value="relevance">relevance</option>
-                <option value="newest">newest</option>
-            </select>
+            <v-btn class="v-btn" @click="getBooks()">Search</v-btn>
+            <v-select class="w-25" label="Select" :items="['relevance', 'newest']"></v-select>
         </div>
         <div class="search__list">
             <div class="search__loading" v-if="isLoading">Loading...</div>
             <div class="search__result" v-show="hasData" v-else="loading = false">
                 <p>{{ totalBooks }}</p>
-                <RouterLink class="search__book book" :to="{ name: 'Book', params: { id: book.id } }" v-for="book in bookList.books" :key="book.id">
+                <RouterLink class="search__book book d-inline-flex" :to="{ name: 'Book', params: { id: book.id } }"
+                    v-for="book in bookList.books" :key="book.id">
                     <img class="book__image" :src="book.imageLinks.smallThumbnail" alt="Thumbnail">
                     <div class="book__main">
                         <h3 class="book__title">{{ book.title }}</h3>
-                        <p class="book__author">By {{ book.authors.toString().replace(/,/g, ", ")}}</p>
-                        <p class="book__rating">{{ useStarRating(parseInt(book.averageRating)) || "☆☆☆☆☆" }} {{ book.averageRating }}</p>
+                        <p class="book__author">By {{ book.authors.toString().replace(/,/g, ", ") }}</p>
+                        <p class="book__rating">{{ useStarRating(parseInt(book.averageRating)) || "☆☆☆☆☆" }} {{
+                            book.averageRating }}</p>
                     </div>
                 </RouterLink>
                 <div class="search__pagination">
                     <button @click="previousPage">
-                        {{ "<" }}
-                    </button>
-                    <button @click="nextPage">
-                        {{ ">" }}
-                    </button>
+                        {{ "<" }} </button>
+                            <button @click="nextPage">
+                                {{ ">" }}
+                            </button>
                 </div>
             </div>
         </div>
-        
+
     </div>
 </template>
