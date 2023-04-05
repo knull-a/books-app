@@ -65,46 +65,57 @@ onMounted(async () => {
     } catch (error) {
         console.error(error)
     } finally {
-        isLoading.value = false
+        setTimeout(() => isLoading.value = false, 1000);
+        
     }
 })
 
 </script>
 <template>
-    <div class="loading" v-if="isLoading === true">Loading...</div>
-    <div class="book" v-else="isLoading === false">
-        <div class="book__side">
-            <img :src="book?.volumeInfo.imageLinks.thumbnail" alt="Thumbnail" class="book__image">
-            <button class="btn btn-primary book__btn">Want to read</button>
-            <button class="btn btn-primary book__btn">{{ checkSaleability() }}</button>
-        </div>
-        <div class="book__main">
-            <h2 class="book__title">{{ book?.volumeInfo.title }}</h2>
-            <div class="book__authors">
-                <p class="book__author" v-for="(author, idx) in book?.volumeInfo.authors" :key="idx">{{ author }}</p>
-            </div>
-            <div class="book__rating">
-                <span class="book__rating_stars">{{ showRating() }}</span>
-                <span class="book__rating_count">{{ book?.volumeInfo.ratingsCount || 0 }} {{ checkRating() }}</span>
-            </div>
-            <p class="book__description">{{ removeTags() }}</p>
-            <div class="book__categories">
-                <span class="book__categories_title">Genres:</span>
-                <div class="book__categories_items">
-                    <span class="book__categories_items_item"
-                        v-if="book?.volumeInfo.categories === undefined">Undefined</span>
-                    <span class="book__categories_items-item" v-for="(category, idx) in book?.volumeInfo.categories"
-                        :key="idx">{{ category }}
-                    </span>
+    <v-progress-linear class="justify-center" indeterminate v-if="isLoading" model-value="20"></v-progress-linear>
+    <v-container class="book" v-else="!isLoading">
+        <v-row>
+            <v-col cols="3" class="book__side">
+                <v-col class="d-flex flex-column ">
+                    <v-img width="200" height="320" :src="book?.volumeInfo.imageLinks.thumbnail" alt="Thumbnail"
+                        class="book__image">
+                        <template v-slot:placeholder>
+                            <div class="d-flex align-center justify-center fill-height">
+                                <v-progress-circular color="grey-lighten-4" indeterminate></v-progress-circular>
+                            </div>
+                        </template>
+                    </v-img>
+                    <v-btn width="200" class="btn btn-primary book__btn mb-1">Want to read</v-btn>
+                    <v-btn width="200" class="btn btn-primary book__btn">{{ checkSaleability() }}</v-btn>
+                </v-col>
+            </v-col>
+            <v-col cols="9" class="book__main">
+                <h2 class="text-h2 font-weight-bold">{{ book?.volumeInfo.title }}</h2>
+                <div class="book__authors">
+                    <p class="text-h5 " v-for="(author, idx) in book?.volumeInfo.authors" :key="idx">{{ author }}</p>
                 </div>
-            </div>
-            <button v-show="!isDetailsOpened" @click="isDetailsOpened = true" class="book__details-open">
-                Book details and more
-                <IconArrowDown />
-            </button>
-
-            <BookDetails :book="book" v-show="isDetailsOpened" />
-            <BookFilteredList />
-        </div>
-    </div>
+                <div class="book__rating">
+                    <span class="book__rating_stars">{{ showRating() }}</span>
+                    <span class="book__rating_count">{{ book?.volumeInfo.ratingsCount || 0 }} {{ checkRating() }}</span>
+                </div>
+                <p class="book__description">{{ removeTags() }}</p>
+                <div class="book__categories">
+                    <span class="book__categories_title">Genres:</span>
+                    <div class="book__categories_items">
+                        <span class="book__categories_items_item"
+                            v-if="book?.volumeInfo.categories === undefined">Undefined</span>
+                        <span class="book__categories_items-item" v-for="(category, idx) in book?.volumeInfo.categories"
+                            :key="idx">{{ category }}
+                        </span>
+                    </div>
+                </div>
+                <button v-show="!isDetailsOpened" @click="isDetailsOpened = true" class="book__details-open">
+                    Book details and more
+                </button>
+    
+                <BookDetails :book="book" v-show="isDetailsOpened" />
+                <BookFilteredList />
+            </v-col>
+        </v-row>
+    </v-container>
 </template>

@@ -6,8 +6,6 @@ import { RouterLink, useRouter } from 'vue-router';
 import { useBooksStore } from '@/stores/bookList';
 import { useStarRating } from '@/composables/starRating';
 
-
-
 const bookList = useBooksStore()
 
 const isLoading = ref(false)
@@ -15,7 +13,6 @@ const isLoading = ref(false)
 const isLoaded = ref(false)
 
 const searchQuery = ref("")
-
 
 const page = ref(0)
 
@@ -30,15 +27,14 @@ const previousPage = () => {
 const nextPage = () => {
     getBooks(10, page.value += 10)
 }
-const order = ref('relevance')
 
-console.log(order.value)
+const order = ref('relevance')
 
 async function getBooks(limit?: number, skip?: number) {
     try {
         if (searchQuery.value === '') return
         [isLoading.value, hasData.value] = [true, true]
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery.value}&orderBy=${order.value}&startIndex=${skip || 0}&maxResults=${limit || 10}&key=${bookList.apiKey}`;
+        const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery.value}&orderBy=${order.value}&startIndex=${skip || 0}&maxResults=${limit || 40}&key=${bookList.apiKey}`;
         console.log(url)
         const response = await axios.get(url);
         totalBooks.value = response.data.totalItems
@@ -75,7 +71,8 @@ async function getBooks(limit?: number, skip?: number) {
                 <h1>Find any book you want!</h1>
             </v-col>
             <v-col cols="2">
-                <v-select density="comfortable" label="Sort by" variant="solo" :items="['relevance', 'newest']"></v-select>
+                <v-select v-model="order" density="comfortable" label="Sort by" variant="solo"
+                    :items="['relevance', 'newest']"></v-select>
             </v-col>
             <v-col cols="10">
                 <v-text-field append-inner-icon="fas fa-search" variant="solo" density="comfortable" v-if="!isLoading"
@@ -86,27 +83,35 @@ async function getBooks(limit?: number, skip?: number) {
                     @click:append-inner="getBooks()"></v-text-field>
             </v-col>
 
-            <v-col class="d-flex flex-column" cols="6">
-                <RouterLink class="d-inline-flex my-2" :to="{ name: 'Book', params: { id: book.id } }"
-                    v-for="book in bookList.books" :key="book.id">
-                    <img class="mx-auto" width="130" height="200" cover :src="book.imageLinks.thumbnail" />
-                    <v-col cols="12" class="book__main">
-                        <h3 class="text-h5">{{ book.title }}</h3>
-                        <p class="text-subtitle-1">By {{ book.authors.toString().replace(/,/g, ", ") }}</p>
-                        <p class="text-h6">{{ useStarRating(parseInt(book.averageRating)) || "☆☆☆☆☆" }} {{
-                            book.averageRating }}</p>
-                    </v-col>
-                </RouterLink>
-            </v-col>
-            <v-col cols="12">
-                <div class="search__pagination">
-                    <button @click="previousPage">
-                        {{ "<" }} </button>
-                            <button @click="nextPage">
-                                {{ ">" }}
-                            </button>
-                </div>
-            </v-col>
+            <div v-if="isLoaded">
+                <v-col class="d-flex flex-column" cols="6">
+                    <RouterLink class="d-inline-flex my-2" :to="{ name: 'Book', params: { id: book.id } }"
+                        v-for="book in bookList.books" :key="book.id">
+                        <v-img class="mx-auto" width="130" height="200" cover :src="book.imageLinks.thumbnail">
+                            <template v-slot:placeholder>
+                                <div class="d-flex align-center justify-center fill-height">
+                                    <v-progress-circular color="grey-lighten-4" indeterminate></v-progress-circular>
+                                </div>
+                            </template>
+                        </v-img>
+                        <v-col cols="12" class="book__main">
+                            <h3 class="text-h5">{{ book.title }}</h3>
+                            <p class="text-subtitle-1">By {{ book.authors.toString().replace(/,/g, ", ") }}</p>
+                            <p class="text-h6">{{ useStarRating(parseInt(book.averageRating)) || "☆☆☆☆☆" }} {{
+                                book.averageRating }}</p>
+                        </v-col>
+                    </RouterLink>
+                </v-col>
+                <v-col cols="12">
+                    <div class="search__pagination">
+                        <button @click="previousPage">
+                            {{ "<" }} </button>
+                                <button @click="nextPage">
+                                    {{ ">" }}
+                                </button>
+                    </div>
+                </v-col>
+            </div>
         </v-row>
 
     </v-container>

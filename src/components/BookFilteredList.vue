@@ -33,7 +33,14 @@ async function getBooks() {
         <h3 class="related__title">More from {{ book?.volumeInfo.authors[0] }}</h3>
         <div class="related__books" v-for="authorBook in bookList.books">
             <div class="related__books-book">
-                <img :src="authorBook.imageLinks.thumbnail" alt="Thumbnail" class="related__image">
+                <v-img width="180" height="300" :src="authorBook.imageLinks.thumbnail" alt="Thumbnail"
+                    class="related__image">
+                    <template v-slot:placeholder>
+                        <div class="d-flex align-center justify-center fill-height">
+                            <v-progress-circular color="grey-lighten-4" indeterminate></v-progress-circular>
+                        </div>
+                    </template>
+                </v-img>
                 <div class="related__info">
                     <p class="related__title">{{ authorBook.title }}</p>
                     <p class="related__author">{{ authorBook.authors.toString().replace(/,/g, ", ") }}</p>

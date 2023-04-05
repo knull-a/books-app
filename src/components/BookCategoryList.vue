@@ -7,7 +7,7 @@ const bookList = useBooksStore()
 const books = ref<Book[]>([])
 const book = inject<Ref<SingleBook>>('book')
 
-const hasCategory = computed(() => book?.value.volumeInfo.authors !== undefined)
+const hasCategory = computed(() => book?.value.volumeInfo.categories !== undefined)
 
 watchEffect(() => getBooks())
 
@@ -32,7 +32,14 @@ async function getBooks() {
         <h3 class="related__title">More {{ book?.volumeInfo.categories[0] }}</h3>
         <div class="related__books" v-for="categoryBook in books">
             <div class="related__books-book">
-                <img :src="categoryBook.imageLinks.thumbnail" alt="Thumbnail" class="related__image">
+                <v-img width="180" height="300" :src="categoryBook.imageLinks.thumbnail" alt="Thumbnail"
+                    class="related__image">\
+                    <template v-slot:placeholder>
+                        <div class="d-flex align-center justify-center fill-height">
+                            <v-progress-circular color="grey-lighten-4" indeterminate></v-progress-circular>
+                        </div>
+                    </template>
+                </v-img>
                 <div class="related__info">
                     <p class="related__title">{{ categoryBook.title }}</p>
                     <p class="related__author">{{ categoryBook.authors.toString().replace(/,/g, ", ") }}</p>
