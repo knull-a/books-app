@@ -7,9 +7,12 @@ import { useBooksStore } from '@/stores/bookList';
 import { useStarRating } from '@/composables/starRating';
 
 
+
 const bookList = useBooksStore()
 
 const isLoading = ref(false)
+
+const isLoaded = ref(false)
 
 const searchQuery = ref("")
 
@@ -60,31 +63,42 @@ async function getBooks(limit?: number, skip?: number) {
     }
     finally {
         isLoading.value = false
+        isLoaded.value = true
     }
 }
 </script>
 
 <template>
-    <div class="search">
-        <div class="search__box d-flex text-center">
-            <input type="text" v-model="searchQuery" @keypress.enter="getBooks()">
-            <v-btn class="v-btn" @click="getBooks()">Search</v-btn>
-            <v-select class="w-25" label="Select" :items="['relevance', 'newest']"></v-select>
-        </div>
-        <div class="search__list">
-            <div class="search__loading" v-if="isLoading">Loading...</div>
-            <div class="search__result" v-show="hasData" v-else="loading = false">
-                <p>{{ totalBooks }}</p>
-                <RouterLink class="search__book book d-inline-flex" :to="{ name: 'Book', params: { id: book.id } }"
+    <v-container class="fill-height">
+        <v-row class="d-flex" no-gutters>
+            <v-col cols="12" justify-self="center">
+                <h1>Find any book you want!</h1>
+            </v-col>
+            <v-col cols="2">
+                <v-select density="comfortable" label="Sort by" variant="solo" :items="['relevance', 'newest']"></v-select>
+            </v-col>
+            <v-col cols="10">
+                <v-text-field append-inner-icon="fas fa-search" variant="solo" density="comfortable" v-if="!isLoading"
+                    type="text" v-model="searchQuery" @keypress.enter="getBooks()"
+                    @click:append-inner="getBooks()"></v-text-field>
+                <v-text-field append-inner-icon="fas fa-search" variant="solo" density="comfortable" color="success" loading
+                    disabled v-else type="text" v-model="searchQuery" @keypress.enter="getBooks()"
+                    @click:append-inner="getBooks()"></v-text-field>
+            </v-col>
+
+            <v-col class="d-flex flex-column" cols="6">
+                <RouterLink class="d-inline-flex my-2" :to="{ name: 'Book', params: { id: book.id } }"
                     v-for="book in bookList.books" :key="book.id">
-                    <img class="book__image" :src="book.imageLinks.smallThumbnail" alt="Thumbnail">
-                    <div class="book__main">
-                        <h3 class="book__title">{{ book.title }}</h3>
-                        <p class="book__author">By {{ book.authors.toString().replace(/,/g, ", ") }}</p>
-                        <p class="book__rating">{{ useStarRating(parseInt(book.averageRating)) || "☆☆☆☆☆" }} {{
+                    <img class="mx-auto" width="130" height="200" cover :src="book.imageLinks.thumbnail" />
+                    <v-col cols="12" class="book__main">
+                        <h3 class="text-h5">{{ book.title }}</h3>
+                        <p class="text-subtitle-1">By {{ book.authors.toString().replace(/,/g, ", ") }}</p>
+                        <p class="text-h6">{{ useStarRating(parseInt(book.averageRating)) || "☆☆☆☆☆" }} {{
                             book.averageRating }}</p>
-                    </div>
+                    </v-col>
                 </RouterLink>
+            </v-col>
+            <v-col cols="12">
                 <div class="search__pagination">
                     <button @click="previousPage">
                         {{ "<" }} </button>
@@ -92,8 +106,8 @@ async function getBooks(limit?: number, skip?: number) {
                                 {{ ">" }}
                             </button>
                 </div>
-            </div>
-        </div>
+            </v-col>
+        </v-row>
 
-    </div>
+    </v-container>
 </template>

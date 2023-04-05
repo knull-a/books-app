@@ -5,11 +5,11 @@ const router = createRouter({
   routes: [
    {
     path: "/",
-    name: "Home",
+    name: "Search",
     component: () => import("@/components/SearchQuery.vue")
    },
    {
-    path: "/books",
+    path: "/search",
     redirect: "/"
    },
    {
