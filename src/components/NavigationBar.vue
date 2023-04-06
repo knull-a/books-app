@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import ThemeToggle from './ThemeToggle.vue';
+import ThemeToggle from '@/components/ThemeToggle.vue';
+import AuthPage from '@/components/AuthPage.vue';
 import { RouterLink } from 'vue-router';
 import { ref } from 'vue';
 
@@ -33,6 +34,7 @@ const rail = ref(true)
                         title="Bookshelves" value="bookshelves"></v-list-item></RouterLink>
                 <RouterLink to="/newest" active-class="v-list-item--active"><v-list-item prepend-icon="fas fa-star"
                         title="Newest" value="newest"></v-list-item></RouterLink>
+                <AuthPage />
 
             </v-list>
             <template v-slot:append>

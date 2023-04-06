@@ -5,14 +5,14 @@ import axios from 'axios'
 import { useRoute } from 'vue-router';
 import type { AxiosResponse } from 'axios';
 import SearchComponent from '@/components/SearchComponent.vue';
-const route = useRoute()
+const page = ref(1)
 const isLoading = ref(false)
 const bookList = useBooksStore()
 
-const getCategory = async (limit?: number, skip?: number) => {
+const getNewest = async (limit?: number, skip?: number) => {
     try {
         isLoading.value = true
-        const url = `https://www.googleapis.com/books/v1/volumes?q=+orderBy:newest&startIndex=${skip || 0}&maxResults=${limit || 10}&key=${bookList.apiKey}`
+        const url = `https://www.googleapis.com/books/v1/volumes?q=+orderBy:newest&startIndex=${page.value === 1 ? page.value : page.value * 10}&maxResults=10&key=${bookList.apiKey}`
         const response: AxiosResponse = await axios.get(url)
         console.log(url);
 
@@ -38,10 +38,11 @@ const getCategory = async (limit?: number, skip?: number) => {
     }
 }
 
-onMounted(getCategory)
+onMounted(getNewest)
 
 </script>
 <template>
     <h1>New Arrivals in our Library</h1>
     <SearchComponent :bookList="bookList"/>
+    <v-pagination @click="getNewest" v-model="page" :length="30"></v-pagination>
 </template>

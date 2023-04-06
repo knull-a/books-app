@@ -9,19 +9,19 @@ import SearchComponent from '@/components/SearchComponent.vue';
 
 const bookList = useBooksStore()
 
-const category = ref()
+const totalBooks = ref(0)
 
 const route = useRoute()
 
 const isLoading = ref(false)
 
-const getCategory = async (limit?: number, skip?: number) => {
+const getCategory = async () => {
     try {
         isLoading.value = true
-        const url = `https://www.googleapis.com/books/v1/volumes?q=+subject:${route.params.categoryName}&startIndex=${page.value}&maxResults=${limit || 10}&key=${bookList.apiKey}`
+        const url = `https://www.googleapis.com/books/v1/volumes?q=+subject:${route.params.categoryName}&startIndex=${page.value === 1 ? page.value : page.value * 10}&maxResults=10&key=${bookList.apiKey}`
         const response: AxiosResponse = await axios.get(url)
         console.log(url);
-
+        totalBooks.value = response.data.totalItems
         bookList.books = response.data.items.map((item: any) => ({
             id: item.id,
             title: item.volumeInfo.title,
@@ -37,6 +37,7 @@ const getCategory = async (limit?: number, skip?: number) => {
             downloadEpub: item.accessInfo.epub,
             downloadPdf: item.accessInfo.pdf
         }))
+        
     } catch (error) {
         console.error(error)
     } finally {
@@ -46,32 +47,7 @@ const getCategory = async (limit?: number, skip?: number) => {
 
 onMounted(getCategory)
 
-const page = ref(0);
-
-const perPage = 10;
-
-const paginatedData = computed(() =>
-  bookList.books.slice((page.value - 1) * perPage, page.value * perPage)
-);
-
-const nextPage = () => {
-  if (page.value !== Math.ceil(bookList.books.length / perPage)) {
-    page.value += 1;
-  }
-};
-
-const backPage = () => {
-  if (page.value !== 1) {
-    page.value -= 1;
-  }
-};
-
-const goToPage = (numPage: number) => {
-  page.value = numPage;
-};
-
-
-
+const page = ref(1);
 
 // const appComponent = {
 //   name: "App",
@@ -82,24 +58,10 @@ const goToPage = (numPage: number) => {
 
 <template>
     <div>
+        {{ page }}
         <h3 class="text-h4">The Best of {{ route.params.categoryName }}</h3>
         <SearchComponent :bookList="bookList" />
-        <!-- <v-col cols="12">
-            <div class="search__pagination">
-                <button @click="previousPage">
-                    {{ "<" }} </button>
-                        <button @click="nextPage">
-                            {{ ">" }}
-                        </button>
-            </div>
-        </v-col> -->
+        <v-pagination @click="getCategory" v-model="page" :length="30"></v-pagination>
     </div>
-    <div>
-        <div v-for="item in bookList.books.length">{{ item }}</div>
-        <button @click="backPage">prev</button>
-        <button v-for="item in Math.ceil(bookList.books.length / perPage)" :key="item" @click = "goToPage(item)">
-            {{ item }}
-        </button>
-        <button @click="nextPage">next</button>
-    </div>
+    
 </template>
