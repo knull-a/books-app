@@ -29,22 +29,26 @@ async function getBooks() {
 </script>
 <template>
     <div class="book__related related category" v-if="hasCategory">
-        <h3 class="related__title">More {{ book?.volumeInfo.categories[0] }}</h3>
-        <div class="related__books" v-for="categoryBook in books">
-            <div class="related__books-book">
-                <v-img width="180" height="300" :src="categoryBook.imageLinks.thumbnail" alt="Thumbnail"
-                    class="related__image">\
-                    <template v-slot:placeholder>
-                        <div class="d-flex align-center justify-center fill-height">
-                            <v-progress-circular color="grey-lighten-4" indeterminate></v-progress-circular>
-                        </div>
-                    </template>
-                </v-img>
-                <div class="related__info">
-                    <p class="related__title">{{ categoryBook.title }}</p>
-                    <p class="related__author">{{ categoryBook.authors.toString().replace(/,/g, ", ") }}</p>
-                </div>
-            </div>
-        </div>
+        <h3 class="related__title text-h4">More {{ book?.volumeInfo.categories[0] }}</h3>
+        <v-sheet class="mx-auto" max-width="900">
+        <v-slide-group class="pa-2" show-arrows >
+            <v-slide-group-item v-for="n in 10" :key="n">
+                <v-container class="related__books" v-for="categoryBook in books">
+                    <v-row class="related__books-book">
+                        <RouterLink :to="{ name: 'Book', params: { id: categoryBook.id } }">
+                            <v-img cover width="160" height="280" :src="categoryBook.imageLinks.thumbnail" alt="Thumbnail"
+                                class="related__image">
+                                <template v-slot:placeholder>
+                                    <div class="d-flex align-center justify-center fill-height">
+                                        <v-progress-circular color="grey-lighten-4" indeterminate></v-progress-circular>
+                                    </div>
+                                </template>
+                            </v-img>
+                        </RouterLink>
+                    </v-row>
+                </v-container>
+            </v-slide-group-item>
+        </v-slide-group>
+    </v-sheet>
     </div>
 </template>

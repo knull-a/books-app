@@ -2,8 +2,8 @@
 import IconArrowDown from '@/components/icons/IconArrowDown.vue'
 import BookFilteredList from "@/components/BookFilteredList.vue"
 import BookDetails from '@/components/BookDetails.vue';
-import { onMounted, reactive, ref, watchEffect, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { onMounted, reactive, ref, watch, computed } from 'vue';
+import { RouterLink, useRoute } from 'vue-router';
 import { useBooksStore } from '@/stores/bookList';
 import { useStarRating } from '@/composables/starRating';
 import { provide } from 'vue';
@@ -48,7 +48,7 @@ const isDetailsOpened = ref(false)
 
 provide('book', book)
 
-const checkSaleability = () => book?.value.saleInfo.saleability === 'FOR_SALE' ? "Buy" + Math.floor(book?.value.saleInfo.listPrice.amount) + book?.value.saleInfo.listPrice.currencyCode : "Not available"
+const checkSaleability = () => book?.value.saleInfo.saleability === 'FOR_SALE' ? "Buy " + Math.floor(book?.value.saleInfo.listPrice.amount) + book?.value.saleInfo.listPrice.currencyCode : "Not available"
 
 const showRating = () => useStarRating(book?.value.volumeInfo.averageRating ?? 0) || "☆☆☆☆☆"
 
@@ -56,7 +56,7 @@ const checkRating = () => book?.value.volumeInfo.ratingsCount === 1 ? "rating" :
 
 const removeTags = () => book?.value.volumeInfo.description ? book?.value.volumeInfo.description.replace(/<.*?>/g, '') : "There is no description."
 
-onMounted(async () => {
+const getBook = async() => {
     try {
         isLoading.value = true
         const url = `https://www.googleapis.com/books/v1/volumes/${route.params.id}?projection=full&key=${bookList.apiKey}`
@@ -65,10 +65,13 @@ onMounted(async () => {
     } catch (error) {
         console.error(error)
     } finally {
-        setTimeout(() => isLoading.value = false, 1000);
-        
+        isLoading.value = false
     }
-})
+}
+
+onMounted(getBook)
+
+watch(() => route.params.id, getBook)
 
 </script>
 <template>
@@ -86,36 +89,39 @@ onMounted(async () => {
                         </template>
                     </v-img>
                     <v-btn width="200" class="btn btn-primary book__btn mb-1">Want to read</v-btn>
-                    <v-btn width="200" class="btn btn-primary book__btn">{{ checkSaleability() }}</v-btn>
+                    <a target="_blank" :href="book?.volumeInfo.previewLink"><v-btn prepend-icon="fas fa-cart-shopping" width="200" class="btn btn-primary book__btn" :class="book?.saleInfo.saleability === 'FOR_SALE' ? 'bg-green' : ''">{{ checkSaleability() }}</v-btn></a>
                 </v-col>
             </v-col>
             <v-col cols="9" class="book__main">
-                <h2 class="text-h2 font-weight-bold">{{ book?.volumeInfo.title }}</h2>
-                <div class="book__authors">
+                <h2 class="text-h2 font-weight-bold mb-2">{{ book?.volumeInfo.title }}</h2>
+                <div class="book__authors mb-2">
                     <p class="text-h5 " v-for="(author, idx) in book?.volumeInfo.authors" :key="idx">{{ author }}</p>
                 </div>
-                <div class="book__rating">
-                    <span class="book__rating_stars">{{ showRating() }}</span>
-                    <span class="book__rating_count">{{ book?.volumeInfo.ratingsCount || 0 }} {{ checkRating() }}</span>
+                <div class="d-flex mb-2 text-h4 align-center">
+                    <span class="mr-2 text-yellow">{{ showRating() }}</span>
+                    <span class="text-subtitle-1">{{ book?.volumeInfo.ratingsCount || 0 }} {{ checkRating() }}</span>
                 </div>
-                <p class="book__description">{{ removeTags() }}</p>
-                <div class="book__categories">
-                    <span class="book__categories_title">Genres:</span>
-                    <div class="book__categories_items">
-                        <span class="book__categories_items_item"
-                            v-if="book?.volumeInfo.categories === undefined">Undefined</span>
-                        <span class="book__categories_items-item" v-for="(category, idx) in book?.volumeInfo.categories"
+                <p class="book__description mb-2">{{ removeTags() }}</p>
+                <div class="book__categories" v-if="book?.volumeInfo.categories !== undefined">
+                    <span class="book__categories_title mr-5">Genres</span>
+                    <div class="book__categories_items d-inline">
+                        <RouterLink :to="{ name: 'Category', params: { categoryName: category } }" class="mr-4" v-for="(category, idx) in book?.volumeInfo.categories"
                             :key="idx">{{ category }}
-                        </span>
+                        </RouterLink>
                     </div>
                 </div>
-                <button v-show="!isDetailsOpened" @click="isDetailsOpened = true" class="book__details-open">
+                <v-btn density="compact" append-icon="fas fa-chevron-down" variant="plain" v-show="!isDetailsOpened" @click="isDetailsOpened = true" class="text-left pl-0 mb-3">
                     Book details and more
-                </button>
-    
+                </v-btn>
                 <BookDetails :book="book" v-show="isDetailsOpened" />
                 <BookFilteredList />
             </v-col>
         </v-row>
     </v-container>
 </template>
+
+<style scoped>
+.text-h2, .text-h5 {
+    font-family: 'Playfair Display', serif !important;
+}
+</style>

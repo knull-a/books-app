@@ -20,10 +20,6 @@ body {
   font-family: 'Cabin', sans-serif;
 }
 
-h2 {
-  font-family: 'Playfair Display', serif;
-}
-
 a,
 a:link,
 a:visited {

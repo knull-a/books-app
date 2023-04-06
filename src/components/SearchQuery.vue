@@ -1,10 +1,12 @@
 <script setup lang="ts">
-// AIzaSyCayVRubdihrXqBykrVwZ_NuuN4IU4-gGI
+import InfiniteLoading from "v3-infinite-loading";
+import "v3-infinite-loading/lib/style.css";
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useBooksStore } from '@/stores/bookList';
 import { useStarRating } from '@/composables/starRating';
+import SearchComponent from '@/components/SearchComponent.vue';
 
 const bookList = useBooksStore()
 
@@ -14,28 +16,20 @@ const isLoaded = ref(false)
 
 const searchQuery = ref("")
 
-const page = ref(0)
-
 const hasData = ref(false)
 
 const totalBooks = ref(0)
 
-const previousPage = () => {
-    if (page.value === 0) return
-    getBooks(10, page.value -= 10)
-}
-const nextPage = () => {
-    getBooks(10, page.value += 10)
-}
-
 const order = ref('relevance')
 
-async function getBooks(limit?: number, skip?: number) {
+const comments = ref<any>([]);
+const page = ref(10);
+
+async function getBooks(state?: any) {
     try {
         if (searchQuery.value === '') return
         [isLoading.value, hasData.value] = [true, true]
-        const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery.value}&orderBy=${order.value}&startIndex=${skip || 0}&maxResults=${limit || 40}&key=${bookList.apiKey}`;
-        console.log(url)
+        const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery.value}&orderBy=${order.value}&startIndex=0&maxResults=${page.value}&key=${bookList.apiKey}`;
         const response = await axios.get(url);
         totalBooks.value = response.data.totalItems
         bookList.books = response.data.items.map((item: any) => ({
@@ -53,6 +47,13 @@ async function getBooks(limit?: number, skip?: number) {
             downloadEpub: item.accessInfo.epub,
             downloadPdf: item.accessInfo.pdf
         }))
+
+        if (bookList.books.length >= 40) state.complete();
+        else {
+            comments.value.push(...bookList.books)
+            state.loaded()
+        }
+        page.value+=3
     }
     catch (err) {
         console.error(err)
@@ -62,6 +63,7 @@ async function getBooks(limit?: number, skip?: number) {
         isLoaded.value = true
     }
 }
+
 </script>
 
 <template>
@@ -84,35 +86,12 @@ async function getBooks(limit?: number, skip?: number) {
             </v-col>
 
             <div v-if="isLoaded">
-                <v-col class="d-flex flex-column" cols="6">
-                    <RouterLink class="d-inline-flex my-2" :to="{ name: 'Book', params: { id: book.id } }"
-                        v-for="book in bookList.books" :key="book.id">
-                        <v-img class="mx-auto" width="130" height="200" cover :src="book.imageLinks.thumbnail">
-                            <template v-slot:placeholder>
-                                <div class="d-flex align-center justify-center fill-height">
-                                    <v-progress-circular color="grey-lighten-4" indeterminate></v-progress-circular>
-                                </div>
-                            </template>
-                        </v-img>
-                        <v-col cols="12" class="book__main">
-                            <h3 class="text-h5">{{ book.title }}</h3>
-                            <p class="text-subtitle-1">By {{ book.authors.toString().replace(/,/g, ", ") }}</p>
-                            <p class="text-h6">{{ useStarRating(parseInt(book.averageRating)) || "☆☆☆☆☆" }} {{
-                                book.averageRating }}</p>
-                        </v-col>
-                    </RouterLink>
-                </v-col>
-                <v-col cols="12">
-                    <div class="search__pagination">
-                        <button @click="previousPage">
-                            {{ "<" }} </button>
-                                <button @click="nextPage">
-                                    {{ ">" }}
-                                </button>
-                    </div>
-                </v-col>
+                <SearchComponent :bookList="bookList" />
+                <InfiniteLoading @infinite="getBooks" />
             </div>
+
         </v-row>
 
     </v-container>
+    
 </template>

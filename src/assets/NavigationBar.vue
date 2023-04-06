@@ -26,20 +26,26 @@ const rail = ref(true)
 
             <v-divider></v-divider>
 
-            <v-list density="compact" nav>
-                <RouterLink to="/" active-class="v-list-item--active"><v-list-item prepend-icon="fas fa-search" title="Search" value="search"></v-list-item></RouterLink>
-                <RouterLink to="/bookshelves" active-class="v-list-item--active"><v-list-item prepend-icon="fas fa-book" title="Bookshelves" value="bookshelves"></v-list-item></RouterLink>
-                <RouterLink to="/newest" active-class="v-list-item--active"><v-list-item prepend-icon="fas fa-star" title="Newest" value="newest"></v-list-item></RouterLink>
-                <a href="#" target="_b"><v-list-item prepend-icon="fas fa-code" title="API" value="api"></v-list-item></a>
+            <v-list mandatory density="compact" nav>
+                <RouterLink to="/" active-class="v-list-item--active"><v-list-item prepend-icon="fas fa-search"
+                        title="Search" value="search"></v-list-item></RouterLink>
+                <RouterLink to="/bookshelves" active-class="v-list-item--active"><v-list-item prepend-icon="fas fa-book"
+                        title="Bookshelves" value="bookshelves"></v-list-item></RouterLink>
+                <RouterLink to="/newest" active-class="v-list-item--active"><v-list-item prepend-icon="fas fa-star"
+                        title="Newest" value="newest"></v-list-item></RouterLink>
 
             </v-list>
             <template v-slot:append>
                 <v-divider></v-divider>
+                <v-list-item prepend-icon="fas fa-code">
+                    <form target="_blank"
+                        action="https://developers.google.com/books/">
+                        <v-btn type="submit">API</v-btn></form>
+                </v-list-item>
                 <v-list-item prepend-icon="fas fa-circle-half-stroke fa-rotate-180">
                     <ThemeToggle />
-                </v-list-item>
-                <v-list-item prepend-icon="fas fa-right-from-bracket"><v-btn>Logout</v-btn></v-list-item>
-            </template>
-        </v-navigation-drawer>
-    </v-card>
-</template>
+            </v-list-item>
+            <v-list-item prepend-icon="fas fa-right-from-bracket"><v-btn>Logout</v-btn></v-list-item>
+        </template>
+    </v-navigation-drawer>
+</v-card></template>
