@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, reactive } from 'vue';
+import { ref, reactive } from 'vue';
 import { useUserStore } from '@/stores/users';
 import type { credentials } from "@/stores/users"
 import { storeToRefs } from 'pinia';
@@ -24,6 +24,11 @@ const clearUserCredentials = () => {
     userCredentials.password = ""
     errorMessage.value = ''
 }
+const handleClose = () => {
+    isVisible.value = false
+    clearUserCredentials()
+    userStore.getUser()
+}
 
 const handleSubmit = async () => {
     if (props.isLogin) {
@@ -31,22 +36,17 @@ const handleSubmit = async () => {
             password: userCredentials.password,
             email: userCredentials.email
         })
-        isVisible.value = false
-        clearUserCredentials()
     } else {
         await userStore.handleSignup(userCredentials)
+        console.log('islogin else');
     }
     if (user.value) {
-        isVisible.value = false
-        clearUserCredentials()
-        console.log(user.value)
+        handleClose()
     }
+    console.log(user.value)
 }
 
-const handleClose = () => {
-    isVisible.value = false
-    clearUserCredentials()
-}
+
 
 
 
@@ -54,45 +54,43 @@ const handleClose = () => {
 </script>
 <template>
     {{ user }}
-    <v-row justify="center">
-        <v-dialog width="1024" v-model="isVisible">
-            <template v-slot:activator="{ props }">
-                <v-btn color="primary" v-bind="props">
-                    {{ title }}
+    <v-dialog width="1024" v-model="isVisible">
+        <template v-slot:activator="{ props }">
+            <v-btn variant="text" class="mx-2" rounded="xl" v-bind="props">
+                {{ title }}
+            </v-btn>
+        </template>
+        <v-card>
+            <v-card-title>
+                <span class="text-h5">{{ title }}</span>
+            </v-card-title>
+            <v-card-text>
+                <v-container>
+                    <v-row>
+                        <v-col cols="12" sm="6" md="4">
+                            <v-text-field label="Username" v-if="!isLogin" v-model="userCredentials.username" counter="15"
+                                required></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-text-field label="Email" v-model="userCredentials.email" required></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-text-field label="Password" v-model="userCredentials.password" type="password"
+                                required></v-text-field>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <span class="text-red">{{ errorMessage }}</span>
+                <v-btn color="blue-darken-1" variant="text" @click="handleClose">
+                    Close
                 </v-btn>
-            </template>
-            <v-card>
-                <v-card-title>
-                    <span class="text-h5">{{ title }}</span>
-                </v-card-title>
-                <v-card-text>
-                    <v-container>
-                        <v-row>
-                            <v-col cols="12" sm="6" md="4">
-                                <v-text-field label="Username" v-if="!isLogin" v-model="userCredentials.username" counter="15"
-                                    required></v-text-field>
-                            </v-col>
-                            <v-col cols="12">
-                                <v-text-field label="Email" v-model="userCredentials.email" required></v-text-field>
-                            </v-col>
-                            <v-col cols="12">
-                                <v-text-field label="Password" v-model="userCredentials.password" type="password"
-                                    required></v-text-field>
-                            </v-col>
-                        </v-row>
-                    </v-container>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <span class="text-red">{{ errorMessage }}</span>
-                    <v-btn color="blue-darken-1" variant="text" @click="handleClose">
-                        Close
-                    </v-btn>
-                    <v-btn :loading="isLoading" @click="handleSubmit" color="blue-darken-1" variant="text">
-                        Submit
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-    </v-row>
+                <v-btn :loading="isLoading" @click="handleSubmit" color="blue-darken-1" variant="text">
+                    Submit
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 </template>

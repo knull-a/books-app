@@ -127,8 +127,31 @@ export const useUserStore = defineStore("user", () => {
 
   };
 
+
   const handleLogout = () => {};
-  const getUser = () => {};
+  const getUser = async () => {
+    isLoading.value = true
+    const {data} = await supabase.auth.getUser()
+
+    if(!data.user) {
+      isLoading.value = false
+      return user.value = null
+    }
+    
+    const {data: userWithEmail} = await supabase
+      .from("users")
+      .select()
+      .eq("email", data?.user?.email)
+      .single()
+
+    user.value = {
+      username: userWithEmail?.username,
+      email: userWithEmail?.email,
+      id: userWithEmail?.id
+    }
+    isLoading.value = false
+    
+  };
 
   return {
     errorMessage,

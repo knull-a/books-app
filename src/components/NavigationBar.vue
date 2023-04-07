@@ -5,15 +5,7 @@ import { RouterLink } from 'vue-router';
 import { ref } from 'vue';
 
 const drawer = ref(true)
-const items = ref([
-    { title: "Search", icon: "fas fa-search" },
-    { title: "Bookshelves", icon: "fas fa-book" },
-    { title: "Newest", icon: "fas fa-star" },
-    { title: "API", icon: "fas fa-code" },
-])
 const rail = ref(true)
-
-const isLogin = ref(false)
 
 </script>
 
@@ -36,20 +28,19 @@ const isLogin = ref(false)
                         title="Bookshelves" value="bookshelves"></v-list-item></RouterLink>
                 <RouterLink to="/newest" active-class="v-list-item--active"><v-list-item prepend-icon="fas fa-star"
                         title="Newest" value="newest"></v-list-item></RouterLink>
-                <AuthPage isLogin="isLogin" />
-                <AuthPage !isLogin="isLogin" />
             </v-list>
             <template v-slot:append>
                 <v-divider></v-divider>
                 <v-list-item prepend-icon="fas fa-code">
-                    <form target="_blank"
-                        action="https://developers.google.com/books/">
-                        <v-btn type="submit">API</v-btn></form>
+                    <form target="_blank" action="https://developers.google.com/books/">
+                        <v-btn type="submit">API</v-btn>
+                    </form>
                 </v-list-item>
                 <v-list-item prepend-icon="fas fa-circle-half-stroke fa-rotate-180">
                     <ThemeToggle />
-            </v-list-item>
-            <v-list-item prepend-icon="fas fa-right-from-bracket"><v-btn>Logout</v-btn></v-list-item>
-        </template>
-    </v-navigation-drawer>
-</v-card></template>
+                </v-list-item>
+                <v-list-item prepend-icon="fas fa-right-from-bracket"><v-btn>Logout</v-btn></v-list-item>
+            </template>
+        </v-navigation-drawer>
+    </v-card>
+</template>

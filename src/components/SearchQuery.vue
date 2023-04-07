@@ -69,14 +69,14 @@ async function getBooks(state?: any) {
 <template>
     <v-container class="fill-height">
         <v-row class="d-flex" no-gutters>
-            <v-col cols="12" justify-self="center">
+            <v-col class="text-center" cols="12" justify-self="center">
                 <h1>Find any book you want!</h1>
             </v-col>
-            <v-col cols="2">
+            <v-col cols="3">
                 <v-select v-model="order" density="comfortable" label="Sort by" variant="solo"
                     :items="['relevance', 'newest']"></v-select>
             </v-col>
-            <v-col cols="10">
+            <v-col cols="9">
                 <v-text-field append-inner-icon="fas fa-search" variant="solo" density="comfortable" v-if="!isLoading"
                     type="text" v-model="searchQuery" @keypress.enter="getBooks()"
                     @click:append-inner="getBooks()"></v-text-field>
