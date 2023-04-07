@@ -13,6 +13,8 @@ const items = ref([
 ])
 const rail = ref(true)
 
+const isLogin = ref(false)
+
 </script>
 
 <template>
@@ -34,8 +36,8 @@ const rail = ref(true)
                         title="Bookshelves" value="bookshelves"></v-list-item></RouterLink>
                 <RouterLink to="/newest" active-class="v-list-item--active"><v-list-item prepend-icon="fas fa-star"
                         title="Newest" value="newest"></v-list-item></RouterLink>
-                <AuthPage />
-
+                <AuthPage isLogin="isLogin" />
+                <AuthPage !isLogin="isLogin" />
             </v-list>
             <template v-slot:append>
                 <v-divider></v-divider>
