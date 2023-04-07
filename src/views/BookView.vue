@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import IconArrowDown from '@/components/icons/IconArrowDown.vue'
 import BookFilteredList from "@/components/BookFilteredList.vue"
 import BookDetails from '@/components/BookDetails.vue';
 import { onMounted, reactive, ref, watch, computed } from 'vue';

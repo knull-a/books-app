@@ -7,6 +7,8 @@ specifiers:
   '@types/node': ^18.14.2
   '@vitejs/plugin-vue': ^4.0.0
   '@vue/tsconfig': ^0.1.3
+  '@vuelidate/core': ^2.0.2
+  '@vuelidate/validators': ^2.0.2
   '@vueuse/components': ^9.13.0
   '@vueuse/core': ^9.13.0
   axios: ^1.3.4
@@ -18,6 +20,7 @@ specifiers:
   sass: ^1.60.0
   typescript: ~4.8.4
   v3-infinite-loading: ^1.2.2
+  vee-validate: ^4.8.4
   vite: ^4.1.4
   vite-plugin-vuetify: ^1.0.2
   vue: ^3.2.47
@@ -30,6 +33,8 @@ specifiers:
 dependencies:
   '@fortawesome/fontawesome-svg-core': 6.4.0
   '@supabase/supabase-js': 2.14.0
+  '@vuelidate/core': 2.0.2_vue@3.2.47
+  '@vuelidate/validators': 2.0.2_vue@3.2.47
   '@vueuse/components': 9.13.0_vue@3.2.47
   '@vueuse/core': 9.13.0_vue@3.2.47
   axios: 1.3.4
@@ -39,6 +44,7 @@ dependencies:
   pinia: 2.0.33_7h6e7cvei2rsgyre2mq4fyhehq
   sass: 1.60.0
   v3-infinite-loading: 1.2.2
+  vee-validate: 4.8.4_vue@3.2.47
   vite-plugin-vuetify: 1.0.2_fkpnioob43xdc2uxhiynqqf5jm
   vue: 3.2.47
   vue-infinite-loading: 2.4.5_vue@3.2.47
@@ -491,6 +497,32 @@ packages:
     dependencies:
       '@types/node': 18.15.11
     dev: true
+
+  /@vuelidate/core/2.0.2_vue@3.2.47:
+    resolution: {integrity: sha512-aG1OZWv6xVws3ljyKy/pyxq1rdZZ2ryj+FEREcC9d4GP4qOvNHHZUl/NQxa0Bck3Ooc0RfXU8vwCA9piRoWy6w==}
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: ^2.0.0 || >=3.0.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      vue: 3.2.47
+      vue-demi: 0.13.11_vue@3.2.47
+    dev: false
+
+  /@vuelidate/validators/2.0.2_vue@3.2.47:
+    resolution: {integrity: sha512-6y6QLoK567XVmaLP3Paf1vkg6K2zO6xax3yTyczy1RnJ4PsLDLLGzP1PFzSpwb16aw4CKduBgI63HvIuctJhQg==}
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: ^2.0.0 || >=3.0.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      vue: 3.2.47
+      vue-demi: 0.13.11_vue@3.2.47
+    dev: false
 
   /@vuetify/loader-shared/1.7.1_vue@3.2.47+vuetify@3.1.12:
     resolution: {integrity: sha512-kLUvuAed6RCvkeeTNJzuy14pqnkur8lTuner7v7pNE/kVhPR97TuyXwBSBMR1cJeiLiOfu6SF5XlCYbXByEx1g==}
@@ -1982,6 +2014,15 @@ packages:
       spdx-correct: 3.2.0
       spdx-expression-parse: 3.0.1
     dev: true
+
+  /vee-validate/4.8.4_vue@3.2.47:
+    resolution: {integrity: sha512-wlLBy50t4EMEin5oqxS2mxpqW02TkIsk0H3LcivLztNJKKLW17hpPSQtQnn8wjDLoWWZ/CVOfep6aw77aCAavg==}
+    peerDependencies:
+      vue: ^3.0.0
+    dependencies:
+      '@vue/devtools-api': 6.5.0
+      vue: 3.2.47
+    dev: false
 
   /vite-plugin-vuetify/1.0.2_fkpnioob43xdc2uxhiynqqf5jm:
     resolution: {integrity: sha512-MubIcKD33O8wtgQXlbEXE7ccTEpHZ8nPpe77y9Wy3my2MWw/PgehP9VqTp92BLqr0R1dSL970Lynvisx3UxBFw==}

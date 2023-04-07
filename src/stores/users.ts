@@ -18,19 +18,20 @@ export const useUserStore = defineStore("user", () => {
   };
 
   const user = ref(null);
-  const errorMessage = reactive<credentials>({
-    email: "Must be a valid e-mail",
-    password: "Password needs to be at least 8 characters",
-    username: "Username needs to be at least 4 characters",
-  });
+  const errorMessage = ref("")
 
+  
   const handleLogin = () => {};
   const handleSignup = (credentials: credentials) => {
     const { email, password, username } = credentials;
+    if (password.length < 8) errorMessage.value = "Password is not strong enough"
+    if (!isValidEmail) errorMessage.value = "Email is invalid"
+    if (username.length < 8) errorMessage.value = "Username is too short"
   };
-
+  
   const handleLogout = () => {};
   const getUser = () => {};
+  
 
   return {
     user,
