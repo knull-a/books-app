@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import ThemeToggle from '@/components/ThemeToggle.vue';
-import AuthPage from '@/components/AuthPage.vue';
 import { RouterLink } from 'vue-router';
 import { ref } from 'vue';
+import { storeToRefs } from 'pinia';
+import { useUserStore } from '@/stores/users';
+import AuthPage from './AuthPage.vue';
+
+const userStore = useUserStore()
+
+const { user } = storeToRefs(userStore)
 
 const drawer = ref(true)
 const rail = ref(true)
@@ -12,12 +18,16 @@ const rail = ref(true)
 <template>
     <v-card>
         <v-navigation-drawer permanent v-model="drawer" :rail="rail" @click="rail = false">
-            <v-list-item prepend-avatar="https://upload.wikimedia.org/wikipedia/en/2/2e/Tony_Soprano_2.jpg"
-                title="Tony Soprano" nav>
-                <template v-slot:append>
-                    <v-btn variant="text" icon="fas fa-chevron-left" @click.stop="rail = !rail"></v-btn>
-                </template>
+            <RouterLink v-if="user" :to="`/user/${user.username}`">
+                <v-list-item prepend-avatar="https://i.ibb.co/YNRg1PL/no-avatar.png"
+                    :title="user.username" nav>
+                </v-list-item>
+            </RouterLink>
+            <v-list-item class="d-flex" :class="rail ? 'justify-start' : 'justify-center'" v-else :prepend-avatar="rail ? 'https://i.ibb.co/YNRg1PL/no-avatar.png' : ''"
+                     nav>
+                    <AuthPage />
             </v-list-item>
+
 
             <v-divider></v-divider>
 
@@ -29,6 +39,13 @@ const rail = ref(true)
                 <RouterLink to="/newest" active-class="v-list-item--active"><v-list-item prepend-icon="fas fa-star"
                         title="Newest" value="newest"></v-list-item></RouterLink>
             </v-list>
+
+                
+                <v-list class="d-flex align-center mt-16 justify-end">
+                    <v-btn v-show="!rail" variant="text" icon="fas fa-chevron-left" @click.stop="rail = !rail"></v-btn>
+                </v-list>
+                
+
             <template v-slot:append>
                 <v-divider></v-divider>
                 <v-list-item prepend-icon="fas fa-code">
@@ -39,7 +56,8 @@ const rail = ref(true)
                 <v-list-item prepend-icon="fas fa-circle-half-stroke fa-rotate-180">
                     <ThemeToggle />
                 </v-list-item>
-                <v-list-item prepend-icon="fas fa-right-from-bracket"><v-btn>Logout</v-btn></v-list-item>
+                <v-list-item @click="userStore.handleLogout" v-if="user"
+                    prepend-icon="fas fa-right-from-bracket"><v-btn>Logout</v-btn></v-list-item>
             </template>
         </v-navigation-drawer>
     </v-card>

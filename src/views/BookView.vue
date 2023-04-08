@@ -9,6 +9,17 @@ import { provide } from 'vue';
 import axios, { type AxiosResponse } from 'axios';
 import type { Book, SingleBook } from '@/types/book'
 
+interface MainBookInfo {
+    id: string
+    volumeInfo: {
+        title: string;
+        authors: string[];
+        imageLinks: {
+            thumbnail: string
+        }
+    }
+}
+
 const route = useRoute()
 const bookList = useBooksStore()
 
@@ -41,6 +52,8 @@ const book = ref<SingleBook>({
 }
 )
 
+
+
 const isLoading = ref(false)
 
 const isDetailsOpened = ref(false)
@@ -55,12 +68,13 @@ const checkRating = () => book?.value.volumeInfo.ratingsCount === 1 ? "rating" :
 
 const removeTags = () => book?.value.volumeInfo.description ? book?.value.volumeInfo.description.replace(/<.*?>/g, '') : "There is no description."
 
-const getBook = async() => {
+const getBook = async () => {
     try {
         isLoading.value = true
         const url = `https://www.googleapis.com/books/v1/volumes/${route.params.id}?projection=full&key=${bookList.apiKey}`
         const response: AxiosResponse = await axios.get(url)
         book.value = response.data
+        console.log(book.value)
     } catch (error) {
         console.error(error)
     } finally {
@@ -71,6 +85,45 @@ const getBook = async() => {
 onMounted(getBook)
 
 watch(() => route.params.id, getBook)
+
+const listName = ref('Want')
+
+const arrOfBooks = ref<any[]>([
+    {
+        name: 'Want',
+        book: []
+    },
+    {
+        name: 'Reading',
+        book: []
+    },
+    {
+        name: 'Read',
+        book: []
+    }
+])
+
+const addBook = () => {
+
+    arrOfBooks.value.forEach(el => {
+        if (el.name === listName.value) {
+            if (arrOfBooks.value[0].book[0] !== undefined && arrOfBooks.value[1].book[0] !== undefined && arrOfBooks.value[2].book[0] !== undefined) {
+                if (arrOfBooks.value[0].book[0].id === arrOfBooks.value[1].book[0].id && arrOfBooks.value[0].book[0].id === arrOfBooks.value[2].book[0].id && arrOfBooks.value[1].book[0].id === arrOfBooks.value[2].book[0].id) return
+            }
+            el.book.push(
+                {
+                    id: book.value.id,
+                    title: book.value.volumeInfo.title,
+                    author: book.value.volumeInfo.authors[0],
+                    image: book.value.volumeInfo.imageLinks.thumbnail
+                }
+            )
+        }
+    })
+    console.log(arrOfBooks.value)
+}
+
+
 
 </script>
 <template>
@@ -87,8 +140,19 @@ watch(() => route.params.id, getBook)
                             </div>
                         </template>
                     </v-img>
-                    <v-btn width="200" class="btn btn-primary book__btn mb-1">Want to read</v-btn>
-                    <a target="_blank" :href="book?.volumeInfo.previewLink"><v-btn prepend-icon="fas fa-cart-shopping" width="200" class="btn btn-primary book__btn" :class="book?.saleInfo.saleability === 'FOR_SALE' ? 'bg-green' : ''">{{ checkSaleability() }}</v-btn></a>
+
+                    <a target="_blank" :href="book?.volumeInfo.previewLink"><v-btn prepend-icon="fas fa-cart-shopping"
+                            width="200" class="my-2" :class="book?.saleInfo.saleability === 'FOR_SALE' ? 'bg-green' : ''">{{
+                                checkSaleability()
+                            }}</v-btn></a>
+                    <div class="d-flex">
+                        <v-select style="max-width: 150px" variant="solo" label="Select" density="compact" single-line
+                            item-title="Want to Read" v-model="listName" :items="['Want', 'Reading', 'Read']"></v-select>
+                        <v-btn @click="addBook" class="ml-2" width="40" height="40" icon="fas fa-plus"></v-btn>
+                        {{ arrOfBooks[0].book[0] }}
+                        {{ arrOfBooks[1].book[0] }}
+                        {{ arrOfBooks[2].book[0] }}
+                    </div>
                 </v-col>
             </v-col>
             <v-col cols="9" class="book__main">
@@ -104,12 +168,13 @@ watch(() => route.params.id, getBook)
                 <div class="book__categories" v-if="book?.volumeInfo.categories !== undefined">
                     <span class="book__categories_title mr-5">Genres</span>
                     <div class="book__categories_items d-inline">
-                        <RouterLink :to="{ name: 'Category', params: { categoryName: category } }" class="mr-4" v-for="(category, idx) in book?.volumeInfo.categories"
-                            :key="idx">{{ category }}
+                        <RouterLink :to="{ name: 'Category', params: { categoryName: category } }" class="mr-4"
+                            v-for="(category, idx) in book?.volumeInfo.categories" :key="idx">{{ category }}
                         </RouterLink>
                     </div>
                 </div>
-                <v-btn density="compact" append-icon="fas fa-chevron-down" variant="plain" v-show="!isDetailsOpened" @click="isDetailsOpened = true" class="text-left pl-0 mb-3">
+                <v-btn density="compact" append-icon="fas fa-chevron-down" variant="plain" v-show="!isDetailsOpened"
+                    @click="isDetailsOpened = true" class="text-left pl-0 mb-3">
                     Book details and more
                 </v-btn>
                 <BookDetails :book="book" v-show="isDetailsOpened" />
@@ -120,7 +185,8 @@ watch(() => route.params.id, getBook)
 </template>
 
 <style scoped>
-.text-h2, .text-h5 {
+.text-h2,
+.text-h5 {
     font-family: 'Playfair Display', serif !important;
 }
 </style>

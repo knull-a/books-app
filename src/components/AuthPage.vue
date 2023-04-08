@@ -53,7 +53,6 @@ const handleSubmit = async () => {
 
 </script>
 <template>
-    {{ user }}
     <v-dialog width="1024" v-model="isVisible">
         <template v-slot:activator="{ props }">
             <v-btn variant="text" class="mx-2" rounded="xl" v-bind="props">
@@ -67,15 +66,15 @@ const handleSubmit = async () => {
             <v-card-text>
                 <v-container>
                     <v-row>
-                        <v-col cols="12" sm="6" md="4">
-                            <v-text-field label="Username" v-if="!isLogin" v-model="userCredentials.username" counter="15"
+                        <v-col cols="12">
+                            <v-text-field @keydown.enter="handleSubmit" label="Username" v-if="!isLogin" v-model="userCredentials.username" counter="15"
                                 required></v-text-field>
                         </v-col>
                         <v-col cols="12">
-                            <v-text-field label="Email" v-model="userCredentials.email" required></v-text-field>
+                            <v-text-field @keydown.enter="handleSubmit" label="Email" v-model="userCredentials.email" required></v-text-field>
                         </v-col>
                         <v-col cols="12">
-                            <v-text-field label="Password" v-model="userCredentials.password" type="password"
+                            <v-text-field @keydown.enter="handleSubmit" label="Password" v-model="userCredentials.password" type="password"
                                 required></v-text-field>
                         </v-col>
                     </v-row>
