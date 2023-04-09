@@ -2,7 +2,7 @@
 import { useBooksStore } from '@/stores/bookList';
 import axios from 'axios';
 import { computed, inject, onMounted, ref, watchEffect, type Ref } from 'vue';
-import type { Book, SingleBook } from '@/types/book';
+import type { Book, SingleBook, FilteredBook } from '@/types/book';
 const bookList = useBooksStore()
 const books = ref<Book[]>([])
 const book = inject<Ref<SingleBook>>('book')
@@ -15,7 +15,7 @@ async function getBooks() {
     try {
         const url = `https://www.googleapis.com/books/v1/volumes?q=+subject:${book?.value.volumeInfo.categories[0]}&key=${bookList.apiKey}`
         const response = await axios.get(url)
-        books.value = response.data.items.map((item: any) => ({
+        books.value = response.data.items.map((item: SingleBook) => ({
             id: item.id,
             title: item.volumeInfo.title,
             authors: item.volumeInfo.authors || 'Unknown',

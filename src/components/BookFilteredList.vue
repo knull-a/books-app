@@ -19,7 +19,7 @@ async function getBooks() {
     try {
         const url = `https://www.googleapis.com/books/v1/volumes?q=+inauthor:${book?.value.volumeInfo.authors[0] === undefined ? '' : book?.value.volumeInfo.authors[0]}&key=${bookList.apiKey}`
         const response = await axios.get(url)
-        bookList.books = response.data.items.map((item: any) => ({
+        bookList.books = response.data.items.map((item: SingleBook) => ({
             id: item.id,
             title: item.volumeInfo.title,
             authors: item.volumeInfo.authors || 'Unknown',

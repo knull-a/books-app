@@ -7,18 +7,11 @@ import { useBooksStore } from '@/stores/bookList';
 import { useStarRating } from '@/composables/starRating';
 import { provide } from 'vue';
 import axios, { type AxiosResponse } from 'axios';
-import type { Book, SingleBook } from '@/types/book'
+import type { SingleBook, BookArray, PushBook } from '@/types/book'
+import { supabase } from "@/data/supabase";
+import { useUserStore } from "@/stores/users";
 
-interface MainBookInfo {
-    id: string
-    volumeInfo: {
-        title: string;
-        authors: string[];
-        imageLinks: {
-            thumbnail: string
-        }
-    }
-}
+const userStore = useUserStore()
 
 const route = useRoute()
 const bookList = useBooksStore()
@@ -48,11 +41,9 @@ const book = ref<SingleBook>({
             amount: 0,
             currencyCode: ""
         },
-    }
+    },
 }
 )
-
-
 
 const isLoading = ref(false)
 
@@ -88,7 +79,7 @@ watch(() => route.params.id, getBook)
 
 const listName = ref('Want')
 
-const arrOfBooks = ref<any[]>([
+const arrOfBooks = ref<BookArray[]>([
     {
         name: 'Want',
         book: []
@@ -103,27 +94,82 @@ const arrOfBooks = ref<any[]>([
     }
 ])
 
-const addBook = () => {
+// const addBook = async (book: SingleBook) => {
+//     arrOfBooks.value.forEach((el) => {
+//         el.book.forEach((b: PushBook) => {
+//             if (b.id === book.id) {
+//                 const index = el.book.indexOf(b);
+//                 el.book.splice(index, 1);
+//             }
+//         });
+//     });
+//     arrOfBooks.value.forEach((el) => {
+//         if (el.name === listName.value) {
+//             el.book.push({
+//                 id: book.id,
+//                 title: book.volumeInfo.title,
+//                 author: book.volumeInfo.authors || 'Undefined',
+//                 image: book.volumeInfo.imageLinks.thumbnail,
+//             });
+//         }
+//     });
 
-    arrOfBooks.value.forEach(el => {
-        if (el.name === listName.value) {
-            if (arrOfBooks.value[0].book[0] !== undefined && arrOfBooks.value[1].book[0] !== undefined && arrOfBooks.value[2].book[0] !== undefined) {
-                if (arrOfBooks.value[0].book[0].id === arrOfBooks.value[1].book[0].id && arrOfBooks.value[0].book[0].id === arrOfBooks.value[2].book[0].id && arrOfBooks.value[1].book[0].id === arrOfBooks.value[2].book[0].id) return
-            }
-            el.book.push(
-                {
-                    id: book.value.id,
-                    title: book.value.volumeInfo.title,
-                    author: book.value.volumeInfo.authors[0],
-                    image: book.value.volumeInfo.imageLinks.thumbnail
-                }
-            )
+// };
+
+const ratingModal = ref(false)
+
+const addBook = async (book: SingleBook) => {
+    const selectedList = arrOfBooks.value.find((el) => el.name === listName.value);
+    if (listName.value === 'Read') {
+        ratingModal.value = true
+        return
+    }
+    if (selectedList) {
+        const selectedBookIndex = selectedList.book.findIndex((b) => b.id === book.id);
+        if (selectedBookIndex === -1) {
+            selectedList.book.push({
+                id: book.id,
+                title: book.volumeInfo.title,
+                author: book.volumeInfo.authors || 'Undefined',
+                image: book.volumeInfo.imageLinks.thumbnail,
+            });
+        } else {
+            selectedList.book.splice(selectedBookIndex, 1, {
+                id: book.id,
+                title: book.volumeInfo.title,
+                author: book.volumeInfo.authors || 'Undefined',
+                image: book.volumeInfo.imageLinks.thumbnail,
+            });
         }
-    })
-    console.log(arrOfBooks.value)
+
+        arrOfBooks.value.forEach((el) => {
+            if (el.name !== listName.value) {
+                const otherBookIndex = el.book.findIndex((b) => b.id === book.id);
+                if (otherBookIndex !== -1) {
+                    el.book.splice(otherBookIndex, 1);
+                }
+            }
+        });
+    }
+    userStore.getUserBook(arrOfBooks.value)
+};
+
+const userReview = reactive({
+    text: '',
+    rating: 0
+})
+
+
+const closeRatingModal = () => {
+    ratingModal.value = false
+    userReview.rating = 0
 }
 
-
+const confirmRatingModal = () => {
+    if (!userReview.text) return
+    userStore.getUserReview(userReview)
+    ratingModal.value = false
+}
 
 </script>
 <template>
@@ -148,11 +194,26 @@ const addBook = () => {
                     <div class="d-flex">
                         <v-select style="max-width: 150px" variant="solo" label="Select" density="compact" single-line
                             item-title="Want to Read" v-model="listName" :items="['Want', 'Reading', 'Read']"></v-select>
-                        <v-btn @click="addBook" class="ml-2" width="40" height="40" icon="fas fa-plus"></v-btn>
-                        {{ arrOfBooks[0].book[0] }}
-                        {{ arrOfBooks[1].book[0] }}
-                        {{ arrOfBooks[2].book[0] }}
+                        <v-btn @click="addBook(book)" class="ml-2" width="40" height="40" icon="fas fa-plus"></v-btn>
                     </div>
+                    <v-dialog v-model="ratingModal" width="auto">
+                        <v-card>
+                            <v-card-title>
+                                How was it?
+                            </v-card-title>
+                            <v-card-text>
+                                <v-textarea v-model="userReview.text" auto-grow label="Short Review"></v-textarea>
+                            </v-card-text>
+                            <v-card-text>
+                                <v-rating size="small" v-model="userReview.rating" hover half-increments></v-rating>
+                            </v-card-text>
+                            <v-card-actions>
+                                <v-btn color="primary" block @click="confirmRatingModal">Ok</v-btn>
+                            </v-card-actions>
+                            <v-card-actions><v-btn color="primary" block @click="closeRatingModal">Close
+                                </v-btn></v-card-actions>
+                        </v-card>
+                    </v-dialog>
                 </v-col>
             </v-col>
             <v-col cols="9" class="book__main">

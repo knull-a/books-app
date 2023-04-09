@@ -17,7 +17,7 @@ onMounted(() => {
       <HeaderBar />
     </header>
       <NavigationBar />
-      <v-main style="max-width: 1300px; margin: 0 auto;">
+      <v-main style="max-width: 1300px; margin: 0 auto">
         <RouterView />
       </v-main>
   </v-app>

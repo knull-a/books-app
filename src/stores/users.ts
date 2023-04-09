@@ -2,15 +2,21 @@ import { defineStore } from "pinia";
 import { reactive } from "vue";
 import { ref, computed } from "vue";
 import { supabase } from "@/data/supabase";
-interface credentials {
+import type { BookArray } from "@/types/book";
+interface Credentials {
   email: string;
   password: string;
   username: string;
 }
 
-interface loginCredentials {
-  email: string
-  password: string
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface Review {
+  text: string;
+  rating: number;
 }
 
 export const useUserStore = defineStore("user", () => {
@@ -24,47 +30,44 @@ export const useUserStore = defineStore("user", () => {
 
   const user = ref();
   const errorMessage = ref("");
-  const isLoading = ref(false)
-  const isUserLoading = ref(false)
+  const isLoading = ref(false);
+  const isUserLoading = ref(false);
 
+  const handleLogin = async (credentials: LoginCredentials) => {
+    const { email, password } = credentials;
 
-  const handleLogin = async (credentials: loginCredentials) => {
-
-    const {email, password} = credentials
-
-    if(!isValidEmail(email)) {
-      return errorMessage.value = "Email is invalid"
+    if (!isValidEmail(email)) {
+      return (errorMessage.value = "Email is invalid");
     }
-    if(!password.length) {
-      return errorMessage.value = "Password cannot be empty"
+    if (!password.length) {
+      return (errorMessage.value = "Password cannot be empty");
     }
-    isLoading.value = true
+    isLoading.value = true;
 
-    const {error} = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
-      password
-    })
+      password,
+    });
     if (error) {
       isLoading.value = false;
-      return errorMessage.value = error.message
+      return (errorMessage.value = error.message);
     }
     const { data: existingUser } = await supabase
       .from("users")
       .select()
       .eq("email", email)
       .single();
-    
-      user.value = {
-        email: existingUser?.email,
-        username: existingUser?.username,
-        id: existingUser?.id
-      }
-      isLoading.value = false
-      errorMessage.value = ""
-    
+
+    user.value = {
+      email: existingUser?.email,
+      username: existingUser?.username,
+      id: existingUser?.id,
+    };
+    isLoading.value = false;
+    errorMessage.value = "";
   };
 
-  const handleSignup = async (credentials: credentials) => {
+  const handleSignup = async (credentials: Credentials) => {
     const { email, password, username } = credentials;
     if (password.length < 8) {
       return (errorMessage.value = "Password is not strong enough");
@@ -79,7 +82,7 @@ export const useUserStore = defineStore("user", () => {
 
     //
 
-    isLoading.value = true
+    isLoading.value = true;
 
     const { data: hasUsername } = await supabase
       .from("users")
@@ -88,7 +91,7 @@ export const useUserStore = defineStore("user", () => {
       .single();
 
     if (hasUsername) {
-      isLoading.value = false
+      isLoading.value = false;
       return (errorMessage.value = "User already registered");
     }
 
@@ -98,13 +101,13 @@ export const useUserStore = defineStore("user", () => {
     });
 
     if (error) {
-      isLoading.value = false
-      console.log(error)
+      isLoading.value = false;
+      console.log(error);
       return (errorMessage.value = error.message);
     }
-    
-    console.log(data)
-    
+
+    console.log(data);
+
     await supabase.from("users").insert({
       username,
       email,
@@ -119,42 +122,59 @@ export const useUserStore = defineStore("user", () => {
     user.value = {
       id: newUser?.id,
       email: newUser?.email,
-      username: newUser?.username
-    }
-    console.log(newUser)
-    
-    isLoading.value = false
+      username: newUser?.username,
+    };
+    console.log(newUser);
 
+    isLoading.value = false;
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    user.value = null
+    await supabase.auth.signOut();
+    user.value = null;
   };
   const getUser = async () => {
-    isUserLoading.value = true
-    const {data} = await supabase.auth.getUser()
+    isUserLoading.value = true;
+    const { data } = await supabase.auth.getUser();
 
-    if(!data.user) {
-      isUserLoading.value = false
-      return user.value = null
+    if (!data.user) {
+      isUserLoading.value = false;
+      return (user.value = null);
     }
-    
-    const {data: userWithEmail} = await supabase
+
+    const { data: userWithEmail } = await supabase
       .from("users")
       .select()
       .eq("email", data?.user?.email)
-      .single()
+      .single();
 
     user.value = {
       username: userWithEmail?.username,
       email: userWithEmail?.email,
-      id: userWithEmail?.id
-    }
-    isUserLoading.value = false
-    
+      id: userWithEmail?.id,
+    };
+    isUserLoading.value = false;
   };
-
+  const getUserBook = async (books: BookArray[]) => {
+    const { data, error } = await supabase
+      .from("users")
+      .update({ user_books: JSON.stringify(books) })
+      .eq("email", user.value.email);
+    if (error) {
+      console.log(error);
+    }
+    console.log(data);
+  };
+  const getUserReview = async (review: Review) => {
+    const { data, error } = await supabase
+      .from("users")
+      .update({ user_reviews: JSON.stringify(review) })
+      .eq("email", user.value.email);
+    if (error) {
+      console.log(error);
+    }
+    console.log(data);
+  };
 
   return {
     errorMessage,
@@ -165,6 +185,8 @@ export const useUserStore = defineStore("user", () => {
     handleSignup,
     handleLogout,
     getUser,
+    getUserBook,
+    getUserReview
   };
 });
-export type { credentials };
+export type { Credentials };

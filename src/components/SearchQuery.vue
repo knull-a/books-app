@@ -7,6 +7,7 @@ import { RouterLink, useRouter } from 'vue-router';
 import { useBooksStore } from '@/stores/bookList';
 import { useStarRating } from '@/composables/starRating';
 import SearchComponent from '@/components/SearchComponent.vue';
+import type { SingleBook, Book } from "@/types/book";
 
 const bookList = useBooksStore()
 
@@ -22,17 +23,17 @@ const totalBooks = ref(0)
 
 const order = ref('relevance')
 
-const comments = ref<any>([]);
+const comments = ref<Book[]>([]);
 const page = ref(10);
 
-async function getBooks(state?: any) {
+async function getBooks(state?: any) { // v3-infinite-loading
     try {
         if (searchQuery.value === '') return
         [isLoading.value, hasData.value] = [true, true]
         const url = `https://www.googleapis.com/books/v1/volumes?q=${searchQuery.value}&orderBy=${order.value}&startIndex=0&maxResults=${page.value}&key=${bookList.apiKey}`;
         const response = await axios.get(url);
         totalBooks.value = response.data.totalItems
-        bookList.books = response.data.items.map((item: any) => ({
+        bookList.books = response.data.items.map((item: SingleBook) => ({
             id: item.id,
             title: item.volumeInfo.title,
             authors: item.volumeInfo.authors || 'Unknown',
@@ -43,9 +44,7 @@ async function getBooks(state?: any) {
             categories: item.volumeInfo.categories || [],
             imageLinks: item.volumeInfo.imageLinks || {},
             averageRating: item.volumeInfo.averageRating || '0',
-            saleInfo: item.saleInfo,
-            downloadEpub: item.accessInfo.epub,
-            downloadPdf: item.accessInfo.pdf
+            saleInfo: item.saleInfo
         }))
 
         if (bookList.books.length >= 40) state.complete();
@@ -91,7 +90,5 @@ async function getBooks(state?: any) {
             </div>
 
         </v-row>
-
     </v-container>
-    
 </template>

@@ -2,9 +2,12 @@
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/users';
 import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
+import { supabase } from '@/data/supabase';
 import { ref } from 'vue';
 
 const route = useRoute()
+const router = useRouter()
 
 const userStore = useUserStore()
 
@@ -12,50 +15,37 @@ const { user } = storeToRefs(userStore)
 
 const isFollowed = ref(false)
 
-const tab = ref(null)
+const toggle = ref(null)
+
+
 </script>
 <template>
     <v-container v-if="!userStore.isUserLoading">
-        <v-row class="align-center">
-            <v-col>
+        <div class="d-flex justify-center align-center mb-10">
+            <div class="mr-5">
                 <v-img class="rounded-circle" width="200" aspect-ratio="1" cover
                     src="https://www.giantbomb.com/a/uploads/scale_small/5/56742/3058593-arthur_portrait.jpg">
                 </v-img>
-            </v-col>
-            <v-col>
+            </div>
+            <div>
                 <h3 class="mb-2">{{ route.params.username }}</h3>
                 <div v-if="user && user.username !== route.params.username">
                     <v-btn v-if="!isFollowed">FOLLOW</v-btn>
                     <v-btn variant="outlined" v-else>FOLLOWED</v-btn>
                 </div>
-            </v-col>
+            </div>
+        </div>
+        <v-row class="justify-center">
+            <!-- todo: add active to buttons when reloading the page -->
+            <v-btn-toggle v-model="toggle" divided>
+                <v-btn @click="router.push(`/user/${route.params.username}/books`)">Books</v-btn> 
+                <v-btn @click="router.push(`/user/${route.params.username}/reviews`)">Reviews</v-btn>
+                <v-btn @click="router.push(`/user/${route.params.username}/contacts`)">Contacts</v-btn>
+            </v-btn-toggle>
         </v-row>
-        <v-row>
-            <v-tabs v-model="tab" align-tabs="title">
-                <v-tab>
-                    Books
-                </v-tab>
-                <v-tab>
-                    Reviews
-                </v-tab>
-                <v-tab>
-                    Contacts
-                </v-tab>
-            </v-tabs>
-        </v-row>
-        <v-row>
-            <v-window v-model="tab">
-                <v-window-item>
-                    Books
-                </v-window-item>
-                <v-window-item>
-                    Reviews
-                </v-window-item>
-                <v-window-item>
-                    Contacts
-                </v-window-item>
-            </v-window>
-        </v-row>
+
+        <RouterView />
+
     </v-container>
 </template>
 

@@ -45,4 +45,28 @@ interface SingleBook {
   };
 }
 
-export type { Book, SingleBook };
+interface FilteredBook {
+  id: string
+  title: string
+  authors: string[] | string
+  imageLinks: ImageLinks
+}
+
+interface ImageLinks {
+  smallThumbnail: string
+  thumbnail: string
+}
+
+interface BookArray {
+  name: string
+  book: PushBook[]
+}
+
+interface PushBook {
+  id: string
+  title: string
+  author: string[] | string
+  image: string
+}
+
+export type { Book, SingleBook, FilteredBook, BookArray, PushBook };
