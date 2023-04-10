@@ -67,6 +67,10 @@ interface PushBook {
   title: string
   author: string[] | string
   image: string
+  bookReview?: {
+    text?: string
+    rating?: number
+  }
 }
 
 export type { Book, SingleBook, FilteredBook, BookArray, PushBook };

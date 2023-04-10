@@ -12,6 +12,7 @@ onMounted(async () => {
         if (data) {
             try {
                 arrOfBooks.value = JSON.parse(data[0].user_books)
+                console.log(arrOfBooks.value)
             } catch {
                 console.log(error)
             }
@@ -31,7 +32,7 @@ onMounted(async () => {
         <v-col cols="6">
             <v-tabs direction="vertical" v-model="tab">
                 <v-tab>
-                    Want 
+                    Want
                 </v-tab>
                 <v-tab>
                     Reading
@@ -42,7 +43,7 @@ onMounted(async () => {
             </v-tabs>
         </v-col>
         <v-col cols="6">
-            <v-window v-model="tab">
+            <v-window v-if="arrOfBooks" v-model="tab">
                 <v-window-item>
                     <div v-show="arrOfBooks[0].book.length === 0">No books</div>
                     <v-col v-for="book in arrOfBooks[0].book">

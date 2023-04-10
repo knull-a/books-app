@@ -162,8 +162,9 @@ export const useUserStore = defineStore("user", () => {
       .eq("email", user.value.email);
     if (error) {
       console.log(error);
+    } else {
+      console.log(data);
     }
-    console.log(data);
   };
   const getUserReview = async (review: Review) => {
     const { data, error } = await supabase
@@ -172,8 +173,9 @@ export const useUserStore = defineStore("user", () => {
       .eq("email", user.value.email);
     if (error) {
       console.log(error);
+    } else {
+      console.log(data);
     }
-    console.log(data);
   };
 
   return {
@@ -186,7 +188,7 @@ export const useUserStore = defineStore("user", () => {
     handleLogout,
     getUser,
     getUserBook,
-    getUserReview
+    getUserReview,
   };
 });
 export type { Credentials };

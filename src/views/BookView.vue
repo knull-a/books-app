@@ -151,6 +151,7 @@ const addBook = async (book: SingleBook) => {
             }
         });
     }
+    console.log(arrOfBooks.value)
     userStore.getUserBook(arrOfBooks.value)
 };
 
@@ -170,6 +171,8 @@ const confirmRatingModal = () => {
     userStore.getUserReview(userReview)
     ratingModal.value = false
 }
+
+const bookWithReview = ref()
 
 </script>
 <template>
