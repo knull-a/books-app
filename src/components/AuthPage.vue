@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { useUserStore } from '@/stores/users';
-import type { credentials } from "@/stores/users"
+import type { Credentials } from "@/stores/users"
 import { storeToRefs } from 'pinia';
 
 

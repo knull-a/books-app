@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BookFilteredList from "@/components/BookFilteredList.vue"
 import BookDetails from '@/components/BookDetails.vue';
-import { onMounted, reactive, ref, watch, computed } from 'vue';
+import { onMounted, reactive, ref, watch, computed, onUnmounted } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import { useBooksStore } from '@/stores/bookList';
 import { useStarRating } from '@/composables/starRating';
@@ -74,6 +74,13 @@ const getBook = async () => {
 }
 
 onMounted(getBook)
+onMounted(() => {
+    console.log("mounted");
+})
+onUnmounted(() => {
+    console.log("unmounted");
+})
+
 
 watch(() => route.params.id, getBook)
 
@@ -120,14 +127,28 @@ const ratingModal = ref(false)
 
 const isConfirm = ref(false)
 
+const abortController = new AbortController();
+
+onUnmounted(() => {
+    abortController.abort();
+});
+
 const addBook = async (book: SingleBook) => {
     const selectedList = arrOfBooks.value.find((el) => el.name === listName.value);
 
     if (listName.value === 'Read') {
         ratingModal.value = true
+        console.log("detect 'read', open modal");
+
         if (isConfirm.value && userReview.rating) {
-            userStore.getUserReview(userReview);
-        } else return
+            console.log('confirm, getuserbook');
+            // userStore.getUserBook(arrOfBooks.value)
+        } else {
+            console.log('return')
+            return
+        }
+        console.log("close modal");
+
         ratingModal.value = false;
     }
 
@@ -143,34 +164,52 @@ const addBook = async (book: SingleBook) => {
     // }
 
     if (selectedList) {
+        console.log("if selectedlist");
+
         const selectedBookIndex = selectedList.book.findIndex((b) => b.id === book.id);
         if (selectedBookIndex === -1) {
+            console.log("selectedBookIndex === -1");
             selectedList.book.push({
                 id: book.id,
                 title: book.volumeInfo.title,
                 author: book.volumeInfo.authors || 'Undefined',
                 image: book.volumeInfo.imageLinks.thumbnail,
+                bookReview: {
+                    text: userReview.text,
+                    rating: userReview.rating
+                }
             });
         } else {
+            console.log("selectedBookIndex === -1 else")
             selectedList.book.splice(selectedBookIndex, 1, {
                 id: book.id,
                 title: book.volumeInfo.title,
                 author: book.volumeInfo.authors || 'Undefined',
                 image: book.volumeInfo.imageLinks.thumbnail,
+                bookReview: {
+                    text: userReview.text,
+                    rating: userReview.rating
+                }
             });
         }
 
         arrOfBooks.value.forEach((el) => {
             if (el.name !== listName.value) {
+                console.log("foreach if 1");
+
                 const otherBookIndex = el.book.findIndex((b) => b.id === book.id);
                 if (otherBookIndex !== -1) {
+                    console.log("foreach if 2");
+
                     el.book.splice(otherBookIndex, 1);
                 }
             }
         });
     }
-    console.log(arrOfBooks.value)
+    console.log("selectedlist continue. getuserbook2");
     userStore.getUserBook(arrOfBooks.value)
+    userReview.text = ''
+    userReview.rating = 0
     snackbar.value = true
 };
 
@@ -182,13 +221,18 @@ const userReview = reactive({
 const snackbar = ref(false)
 
 const closeRatingModal = () => {
+    console.log("close rating modal");
+
     ratingModal.value = false
     userReview.rating = 0
 }
 
 const confirmRatingModal = () => {
+    console.log("confirm rating modal");
+
     isConfirm.value = true
     addBook(book.value)
+    isConfirm.value = false
 }
 
 </script>

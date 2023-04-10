@@ -11,7 +11,7 @@ const arrOfBooks = ref<BookArray[]>([])
 const isLoaded = ref(false)
 
 onMounted(async () => {
-    await supabase.from('users').select('user_books').then(({ data, error }: {data: UserBooks[], error: Error}) => {
+    await supabase.from('users').select('user_books').then(({ data, error }) => {
         if (data) {
             try {
                 arrOfBooks.value = JSON.parse(data[0].user_books)

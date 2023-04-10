@@ -166,17 +166,17 @@ export const useUserStore = defineStore("user", () => {
       console.log(data);
     }
   };
-  const getUserReview = async (review: Review) => {
-    const { data, error } = await supabase
-      .from("users")
-      .update({ user_reviews: JSON.stringify(review) })
-      .eq("email", user.value.email);
-    if (error) {
-      console.log(error);
-    } else {
-      console.log(data);
-    }
-  };
+  // const getUserReview = async (review: Review) => {
+  //   const { data, error } = await supabase
+  //     .from("users")
+  //     .update({ user_reviews: JSON.stringify(review) })
+  //     .eq("email", user.value.email);
+  //   if (error) {
+  //     console.log(error);
+  //   } else {
+  //     console.log(data);
+  //   }
+  // };
 
   return {
     errorMessage,
@@ -188,7 +188,6 @@ export const useUserStore = defineStore("user", () => {
     handleLogout,
     getUser,
     getUserBook,
-    getUserReview,
   };
 });
 export type { Credentials };
