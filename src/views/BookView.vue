@@ -118,12 +118,30 @@ const arrOfBooks = ref<BookArray[]>([
 
 const ratingModal = ref(false)
 
+const isConfirm = ref(false)
+
 const addBook = async (book: SingleBook) => {
     const selectedList = arrOfBooks.value.find((el) => el.name === listName.value);
+
     if (listName.value === 'Read') {
         ratingModal.value = true
-        return
+        if (isConfirm.value && userReview.rating) {
+            userStore.getUserReview(userReview);
+        } else return
+        ratingModal.value = false;
     }
+
+    // if (listName.value === 'Read') {
+    //     ratingModal.value = true
+    //     if (isConfirm.value) {
+    //         if (!userReview.rating) return
+    //         userStore.getUserReview(userReview)
+    //         ratingModal.value = false
+    //     } else {
+    //         return
+    //     }
+    // }
+
     if (selectedList) {
         const selectedBookIndex = selectedList.book.findIndex((b) => b.id === book.id);
         if (selectedBookIndex === -1) {
@@ -153,6 +171,7 @@ const addBook = async (book: SingleBook) => {
     }
     console.log(arrOfBooks.value)
     userStore.getUserBook(arrOfBooks.value)
+    snackbar.value = true
 };
 
 const userReview = reactive({
@@ -160,6 +179,7 @@ const userReview = reactive({
     rating: 0
 })
 
+const snackbar = ref(false)
 
 const closeRatingModal = () => {
     ratingModal.value = false
@@ -167,12 +187,9 @@ const closeRatingModal = () => {
 }
 
 const confirmRatingModal = () => {
-    if (!userReview.text) return
-    userStore.getUserReview(userReview)
-    ratingModal.value = false
+    isConfirm.value = true
+    addBook(book.value)
 }
-
-const bookWithReview = ref()
 
 </script>
 <template>
@@ -198,6 +215,15 @@ const bookWithReview = ref()
                         <v-select style="max-width: 150px" variant="solo" label="Select" density="compact" single-line
                             item-title="Want to Read" v-model="listName" :items="['Want', 'Reading', 'Read']"></v-select>
                         <v-btn @click="addBook(book)" class="ml-2" width="40" height="40" icon="fas fa-plus"></v-btn>
+                        <v-snackbar v-model="snackbar">
+                            Book was succesfully added to your profile.
+
+                            <template v-slot:actions>
+                                <v-btn color="pink" variant="text" @click="snackbar = false">
+                                    Close
+                                </v-btn>
+                            </template>
+                        </v-snackbar>
                     </div>
                     <v-dialog v-model="ratingModal" width="auto">
                         <v-card>

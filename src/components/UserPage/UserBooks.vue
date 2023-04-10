@@ -3,16 +3,18 @@ import { ref } from 'vue';
 import { supabase } from '@/data/supabase';
 import type { BookArray } from '@/types/book';
 import { onMounted } from 'vue';
+interface UserBooks {
+    user_books: string
+}
 const tab = ref(null)
 const arrOfBooks = ref<BookArray[]>([])
 const isLoaded = ref(false)
 
 onMounted(async () => {
-    await supabase.from('users').select('user_books').then(({ data, error }) => {
+    await supabase.from('users').select('user_books').then(({ data, error }: {data: UserBooks[], error: Error}) => {
         if (data) {
             try {
                 arrOfBooks.value = JSON.parse(data[0].user_books)
-                console.log(arrOfBooks.value)
             } catch {
                 console.log(error)
             }
@@ -43,7 +45,7 @@ onMounted(async () => {
             </v-tabs>
         </v-col>
         <v-col cols="6">
-            <v-window v-if="arrOfBooks" v-model="tab">
+            <v-window v-model="tab">
                 <v-window-item>
                     <div v-show="arrOfBooks[0].book.length === 0">No books</div>
                     <v-col v-for="book in arrOfBooks[0].book">
