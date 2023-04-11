@@ -3,9 +3,6 @@ import { ref } from 'vue';
 import { supabase } from '@/data/supabase';
 import type { BookArray } from '@/types/book';
 import { onMounted } from 'vue';
-interface UserBooks {
-    user_books: string
-}
 const tab = ref(null)
 const arrOfBooks = ref<BookArray[]>([])
 const isLoaded = ref(false)
@@ -46,32 +43,32 @@ onMounted(async () => {
         </v-col>
         <v-col cols="6">
             <v-window v-model="tab">
-                <v-window-item>
+                <v-window-item style="min-width: 600px">
                     <div v-show="arrOfBooks[0].book.length === 0">No books</div>
-                    <v-col v-for="book in arrOfBooks[0].book">
-                        <RouterLink :to="`/book/${book.id}`">
+                    <v-col class="d-flex" v-for="book in arrOfBooks[0].book">
+                        <RouterLink style="min-width: 600px" :to="`/book/${book.id}`">
                             <v-img width="130" height="200" cover :src="book.image" alt="Thumbnail"></v-img>
-                            <h3>{{ book.title }}</h3>
+                            <h4>{{ book.title }}</h4>
                             <p>{{ book.author[0] }}</p>
                         </RouterLink>
                     </v-col>
                 </v-window-item>
-                <v-window-item>
+                <v-window-item style="min-width: 600px">
                     <div v-show="arrOfBooks[1].book.length === 0">No books</div>
                     <v-col v-for="book in arrOfBooks[1].book">
                         <RouterLink :to="`/book/${book.id}`">
                             <v-img width="130" height="200" cover :src="book.image" alt="Thumbnail"></v-img>
-                            <h3>{{ book.title }}</h3>
+                            <h4>{{ book.title }}</h4>
                             <p>{{ book.author[0] }}</p>
                         </RouterLink>
                     </v-col>
                 </v-window-item>
-                <v-window-item>
+                <v-window-item style="min-width: 600px">
                     <div v-show="arrOfBooks[2].book.length === 0">No books</div>
                     <v-col v-for="book in arrOfBooks[2].book">
                         <RouterLink :to="`/book/${book.id}`">
                             <v-img width="130" height="200" cover :src="book.image" alt="Thumbnail"></v-img>
-                            <h3>{{ book.title }}</h3>
+                            <h4>{{ book.title }}</h4>
                             <p>{{ book.author[0] }}</p>
                         </RouterLink>
                     </v-col>
