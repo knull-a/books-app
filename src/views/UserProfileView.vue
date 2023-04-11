@@ -19,21 +19,37 @@ const toggle = ref(null)
 
 const profilePicture = ref<File>()
 
-const handleChangeImage = (e: Event) => {
-    
-    
-}
+const profileAvatars = ref<string[]>([])
+
+const isLoading = ref(false)
+
+const errorMessage = ref("")
 
 const handleImage = async (e: Event) => {
     const files = (e.target as HTMLInputElement).files as FileList
     profilePicture.value = files[0]
-    console.log(files[0]);
     const fileName = Date.now()
-    if (profilePicture.value) {
-        const response = await supabase.storage.from("profile-picture").upload('public/' + fileName, profilePicture.value)
-        console.log({response});
-        
+    try {
+        if (profilePicture.value) {
+            isLoading.value = true
+            const { data, error } = await supabase.storage.from("profile-picture").upload('public/' + fileName, profilePicture.value)
+            if (error) errorMessage.value = "Unexpected error. Please try again later."
+            if (data) {
+                await supabase.from("user_avatar").insert({
+                    url: data.path,
+                    owner_id: user.value.id
+                })
+                profileAvatars.value.unshift(data.path)
+                console.log(profileAvatars.value);
+                
+            }
+        }
+    } catch (error) {
+        console.log(error);
+    } finally {
+        isLoading.value = false
     }
+
 }
 
 // const changeImage = async () => {
@@ -48,10 +64,11 @@ const handleImage = async (e: Event) => {
 <template>
     <v-container v-if="!userStore.isUserLoading">
         <div class="d-flex justify-center align-center mb-10">
+            <v-alert v-if="errorMessage" title="Alert title" :text="errorMessage" type="error"></v-alert>
             <div class="mr-5">
                 <label for="avatar">
                     <v-img style="cursor: pointer;" class="rounded-circle" width="200" aspect-ratio="1" cover
-                        src="https://www.giantbomb.com/a/uploads/scale_small/5/56742/3058593-arthur_portrait.jpg">
+                        :src="`https://dimgfhkbhgxjqybowbmf.supabase.co/storage/v1/object/public/profile-picture/${profileAvatars[0]}`">
                     </v-img>
                 </label>
                 <input type="file" id="avatar" @change="handleImage" hidden>
@@ -67,7 +84,7 @@ const handleImage = async (e: Event) => {
         <v-row class="justify-center">
             <!-- todo: add active to buttons when reloading the page -->
             <v-btn-toggle v-model="toggle" divided>
-                <v-btn @click="router.push(`/user/${route.params.username}/books`)">Books</v-btn> 
+                <v-btn @click="router.push(`/user/${route.params.username}/books`)">Books</v-btn>
                 <v-btn @click="router.push(`/user/${route.params.username}/reviews`)">Reviews</v-btn>
                 <v-btn @click="router.push(`/user/${route.params.username}/contacts`)">Contacts</v-btn>
             </v-btn-toggle>
