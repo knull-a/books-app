@@ -1,21 +1,25 @@
+interface ImageLinks {
+  smallThumbnail: string
+  thumbnail: string
+  medium: string;
+  large: string;
+  extraLarge: string;
+}
+
 interface Book {
   id: string;
   title: string;
-  authors: string[];
+  authors: string[] | string;
   publisher: string;
   publishedDate: string;
   description: string;
   pageCount: number;
   categories: string[];
-  imageLinks: {
-    smallThumbnail: string;
-    thumbnail: string;
-    medium: string;
-    large: string;
-    extraLarge: string;
-  };
+  imageLinks: ImageLinks
   averageRating: string;
 }
+
+type FilteredBook = Pick<Book, "id" | "title" | "authors" | "imageLinks"> 
 
 interface SingleBook {
   id: string;
@@ -45,18 +49,6 @@ interface SingleBook {
   };
 }
 
-interface FilteredBook {
-  id: string
-  title: string
-  authors: string[] | string
-  imageLinks: ImageLinks
-}
-
-interface ImageLinks {
-  smallThumbnail: string
-  thumbnail: string
-}
-
 interface BookArray {
   name: string
   book: PushBook[]
@@ -73,4 +65,9 @@ interface PushBook {
   }
 }
 
-export type { Book, SingleBook, FilteredBook, BookArray, PushBook };
+interface BookList {
+  apiKey: string
+  books: Book[]
+}
+
+export type { Book, SingleBook, FilteredBook, BookArray, PushBook, BookList };

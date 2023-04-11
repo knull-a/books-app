@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useStarRating } from '@/composables/starRating';
+import type { Book, BookList } from '@/types/book';
+
 const props = defineProps<{
-    bookList: any
+    bookList: BookList
 }>()
 
 </script>

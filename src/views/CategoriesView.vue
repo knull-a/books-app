@@ -3,8 +3,8 @@ import { useRoute } from 'vue-router';
 import { ref, onMounted, watch, watchEffect, computed } from 'vue'
 import axios from 'axios';
 import type { AxiosResponse } from 'axios';
+import type { SingleBook } from '@/types/book';
 import { useBooksStore } from '@/stores/bookList';
-import { useStarRating } from '@/composables/starRating';
 import SearchComponent from '@/components/SearchComponent.vue';
 
 const bookList = useBooksStore()
@@ -22,7 +22,7 @@ const getCategory = async () => {
         const response: AxiosResponse = await axios.get(url)
         console.log(url);
         totalBooks.value = response.data.totalItems
-        bookList.books = response.data.items.map((item: any) => ({
+        bookList.books = response.data.items.map((item: SingleBook) => ({
             id: item.id,
             title: item.volumeInfo.title,
             authors: item.volumeInfo.authors || 'Unknown',
@@ -34,8 +34,6 @@ const getCategory = async () => {
             imageLinks: item.volumeInfo.imageLinks || {},
             averageRating: item.volumeInfo.averageRating || '0',
             saleInfo: item.saleInfo,
-            downloadEpub: item.accessInfo.epub,
-            downloadPdf: item.accessInfo.pdf
         }))
         
     } catch (error) {
@@ -48,11 +46,6 @@ const getCategory = async () => {
 onMounted(getCategory)
 
 const page = ref(1);
-
-// const appComponent = {
-//   name: "App",
-//   ...handlePaginationValue,
-// };
 
 </script>
 
