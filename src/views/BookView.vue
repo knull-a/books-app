@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import BookFilteredList from "@/components/BookFilteredList.vue"
 import BookDetails from '@/components/BookDetails.vue';
-import { onMounted, reactive, ref, watch, computed, onUnmounted } from 'vue';
+import { onMounted, reactive, ref, watch, onUnmounted } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import { useBooksStore } from '@/stores/bookList';
 import { useStarRating } from '@/composables/starRating';
 import { provide } from 'vue';
 import axios, { type AxiosResponse } from 'axios';
-import type { SingleBook, BookArray, PushBook } from '@/types/book'
+import type { SingleBook, BookArray } from '@/types/book'
 import { supabase } from "@/data/supabase";
 import { useUserStore } from "@/stores/users";
 
@@ -47,6 +47,8 @@ const book = ref<SingleBook>({
 
 const isLoading = ref(false)
 
+const isLoaded = ref(false)
+
 const isDetailsOpened = ref(false)
 
 provide('book', book)
@@ -74,13 +76,6 @@ const getBook = async () => {
 }
 
 onMounted(getBook)
-onMounted(() => {
-    console.log("mounted");
-})
-onUnmounted(() => {
-    console.log("unmounted");
-})
-
 
 watch(() => route.params.id, getBook)
 
@@ -101,74 +96,21 @@ const arrOfBooks = ref<BookArray[]>([
     }
 ])
 
-// const addBook = async (book: SingleBook) => {
-//     arrOfBooks.value.forEach((el) => {
-//         el.book.forEach((b: PushBook) => {
-//             if (b.id === book.id) {
-//                 const index = el.book.indexOf(b);
-//                 el.book.splice(index, 1);
-//             }
-//         });
-//     });
-//     arrOfBooks.value.forEach((el) => {
-//         if (el.name === listName.value) {
-//             el.book.push({
-//                 id: book.id,
-//                 title: book.volumeInfo.title,
-//                 author: book.volumeInfo.authors || 'Undefined',
-//                 image: book.volumeInfo.imageLinks.thumbnail,
-//             });
-//         }
-//     });
-
-// };
-
 const ratingModal = ref(false)
 
 const isConfirm = ref(false)
-
-const abortController = new AbortController();
-
-onUnmounted(() => {
-    abortController.abort();
-});
-
 const addBook = async (book: SingleBook) => {
     const selectedList = arrOfBooks.value.find((el) => el.name === listName.value);
 
     if (listName.value === 'Read') {
         ratingModal.value = true
-        console.log("detect 'read', open modal");
-
-        if (isConfirm.value && userReview.rating) {
-            console.log('confirm, getuserbook');
-            // userStore.getUserBook(arrOfBooks.value)
-        } else {
-            console.log('return')
-            return
-        }
-        console.log("close modal");
-
+        if (!isConfirm.value && !userReview.rating) return
         ratingModal.value = false;
     }
 
-    // if (listName.value === 'Read') {
-    //     ratingModal.value = true
-    //     if (isConfirm.value) {
-    //         if (!userReview.rating) return
-    //         userStore.getUserReview(userReview)
-    //         ratingModal.value = false
-    //     } else {
-    //         return
-    //     }
-    // }
-
     if (selectedList) {
-        console.log("if selectedlist");
-
         const selectedBookIndex = selectedList.book.findIndex((b) => b.id === book.id);
         if (selectedBookIndex === -1) {
-            console.log("selectedBookIndex === -1");
             selectedList.book.push({
                 id: book.id,
                 title: book.volumeInfo.title,
@@ -180,7 +122,6 @@ const addBook = async (book: SingleBook) => {
                 }
             });
         } else {
-            console.log("selectedBookIndex === -1 else")
             selectedList.book.splice(selectedBookIndex, 1, {
                 id: book.id,
                 title: book.volumeInfo.title,
@@ -195,18 +136,13 @@ const addBook = async (book: SingleBook) => {
 
         arrOfBooks.value.forEach((el) => {
             if (el.name !== listName.value) {
-                console.log("foreach if 1");
-
                 const otherBookIndex = el.book.findIndex((b) => b.id === book.id);
                 if (otherBookIndex !== -1) {
-                    console.log("foreach if 2");
-
                     el.book.splice(otherBookIndex, 1);
                 }
             }
         });
     }
-    console.log("selectedlist continue. getuserbook2");
     userStore.getUserBook(arrOfBooks.value)
     userReview.text = ''
     userReview.rating = 0
@@ -221,19 +157,33 @@ const userReview = reactive({
 const snackbar = ref(false)
 
 const closeRatingModal = () => {
-    console.log("close rating modal");
-
     ratingModal.value = false
     userReview.rating = 0
 }
 
 const confirmRatingModal = () => {
-    console.log("confirm rating modal");
-
     isConfirm.value = true
     addBook(book.value)
     isConfirm.value = false
 }
+
+onMounted(async () => {
+    await supabase.from('users').select('user_books').then(({ data, error }) => {
+        if (data) {
+            try {
+                arrOfBooks.value = JSON.parse(data[0].user_books)
+            } catch {
+                console.log(error)
+            }
+            finally {
+                isLoaded.value = true
+            }
+        } else {
+            console.log("No data")
+        }
+
+    })
+})
 
 </script>
 <template>
