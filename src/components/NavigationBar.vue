@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import { RouterLink } from 'vue-router';
-import { ref } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/users';
 import AuthPage from './AuthPage.vue';
@@ -12,6 +12,11 @@ const { user } = storeToRefs(userStore)
 
 const drawer = ref(true)
 const rail = ref(true)
+
+watchEffect(() => console.log(user.value))
+
+
+console.log(user.value)
 
 </script>
 

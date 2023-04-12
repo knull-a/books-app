@@ -3,47 +3,43 @@ import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/users';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
+import { ref, onMounted, provide, watchEffect } from 'vue';
 import { supabase } from '@/data/supabase';
-import { ref } from 'vue';
+import UserProfileAvatar from '@/components/UserProfileAvatar.vue';
 
 const route = useRoute()
 const router = useRouter()
 
+const isLoading = ref(false)
+
 const userStore = useUserStore()
 
 const { user } = storeToRefs(userStore)
+const currentUser = ref<{ [x: string]: any } | null>(null);
 
 const isFollowed = ref(false)
 
 const toggle = ref(null)
 
-const profilePicture = ref<File>()
+const isUserLoaded = ref(false)
 
-const profileAvatars = ref<string[]>([])
+const notFoundMessage = ref('User not found')
 
-const isLoading = ref(false)
-
-const errorMessage = ref("")
-
-const handleImage = async (e: Event) => {
-    const files = (e.target as HTMLInputElement).files as FileList
-    profilePicture.value = files[0]
-    const fileName = Date.now()
+const fetchData = async () => {
     try {
-        if (profilePicture.value) {
-            isLoading.value = true
-            const { data, error } = await supabase.storage.from("profile-picture").upload('public/' + fileName, profilePicture.value)
-            if (error) errorMessage.value = "Unexpected error. Please try again later."
-            if (data) {
-                await supabase.from("user_avatar").insert({
-                    url: data.path,
-                    owner_id: user.value.id
-                })
-                profileAvatars.value.unshift(data.path)
-                console.log(profileAvatars.value);
-                
-            }
-        }
+        isLoading.value = true
+        const { data: userData } = await supabase
+            .from("users")
+            .select()
+            .eq("username", route.params.username)
+            .single()
+        if (!userData) {
+            isLoading.value = false
+            return currentUser.value = null
+        } 
+        currentUser.value = userData
+        console.log(JSON.parse(currentUser.value.user_books));
+        isUserLoaded.value = true
     } catch (error) {
         console.log(error);
     } finally {
@@ -52,29 +48,21 @@ const handleImage = async (e: Event) => {
 
 }
 
-// const changeImage = async () => {
-//     const fileName = Date.now()
-//     if (file.value) {
-//         await supabase.storage.from("profile-picture")
-//             .upload('public/' + fileName, file.value )
-//     }
-// }
+onMounted(() => {
+    fetchData()
+})
+
+watchEffect(() => {
+    fetchData()
+})
 
 </script>
 <template>
-    <v-container v-if="!userStore.isUserLoading">
+    <v-container v-if="!userStore.isUserLoading && !isLoading">
         <div class="d-flex justify-center align-center mb-10">
-            <v-alert v-if="errorMessage" title="Alert title" :text="errorMessage" type="error"></v-alert>
-            <div class="mr-5">
-                <label for="avatar">
-                    <v-img style="cursor: pointer;" class="rounded-circle" width="200" aspect-ratio="1" cover
-                        :src="`https://dimgfhkbhgxjqybowbmf.supabase.co/storage/v1/object/public/profile-picture/${profileAvatars[0]}`">
-                    </v-img>
-                </label>
-                <input type="file" id="avatar" @change="handleImage" hidden>
-            </div>
-            <div>
-                <h3 class="mb-2">{{ route.params.username }}</h3>
+            <UserProfileAvatar isUserLoaded :currentUser="currentUser" />
+            <div v-if="currentUser">
+                <h3 class="mb-2">{{ currentUser.username }}</h3>
                 <div v-if="user && user.username !== route.params.username">
                     <v-btn v-if="!isFollowed">FOLLOW</v-btn>
                     <v-btn variant="outlined" v-else>FOLLOWED</v-btn>

@@ -3,6 +3,7 @@ import { reactive } from "vue";
 import { ref, computed } from "vue";
 import { supabase } from "@/data/supabase";
 import type { BookArray } from "@/types/book";
+import type { User } from "@/types/user"
 interface Credentials {
   email: string;
   password: string;
@@ -14,11 +15,6 @@ interface LoginCredentials {
   password: string;
 }
 
-interface Review {
-  text: string;
-  rating: number;
-}
-
 export const useUserStore = defineStore("user", () => {
   const isValidEmail = (email: string) => {
     return String(email)
@@ -28,7 +24,7 @@ export const useUserStore = defineStore("user", () => {
       );
   };
 
-  const user = ref();
+  const user = ref<User | null>();
   const errorMessage = ref("");
   const isLoading = ref(false);
   const isUserLoading = ref(false);
@@ -159,7 +155,7 @@ export const useUserStore = defineStore("user", () => {
     const { data, error } = await supabase
       .from("users")
       .update({ user_books: JSON.stringify(books) })
-      .eq("email", user.value.email);
+      .eq("email", user?.value?.email);
     if (error) {
       console.log(error);
     } else {
