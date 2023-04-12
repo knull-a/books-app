@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import { RouterLink } from 'vue-router';
-import { ref, watchEffect } from 'vue';
+import { ref, watchEffect, inject } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/users';
 import AuthPage from './AuthPage.vue';
+
+const profileAvatars = inject('profileAvatars')
 
 const userStore = useUserStore()
 
@@ -15,7 +17,6 @@ const rail = ref(true)
 
 watchEffect(() => console.log(user.value))
 
-
 console.log(user.value)
 
 </script>
@@ -24,7 +25,7 @@ console.log(user.value)
     <v-card>
         <v-navigation-drawer permanent v-model="drawer" :rail="rail" @click="rail = false">
             <RouterLink v-if="user" :to="`/user/${user.username}`">
-                <v-list-item prepend-avatar="https://i.ibb.co/YNRg1PL/no-avatar.png"
+                <v-list-item :prepend-avatar="profileAvatars ? `https://dimgfhkbhgxjqybowbmf.supabase.co/storage/v1/object/public/profile-picture/${profileAvatars}` : 'https://i.ibb.co/jw7MWpz/no-avatar.png'"
                     :title="user.username" nav>
                 </v-list-item>
             </RouterLink>

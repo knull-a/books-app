@@ -7,29 +7,56 @@ import { useRoute } from 'vue-router';
 import { useStarRating } from '@/composables/starRating';
 const route = useRoute()
 const arrOfBooks = ref<BookArray[]>([])
+const isUserLoaded = ref(false)
 const isLoaded = ref(false)
 
-onMounted(async () => {
-    await supabase.from('users').select('user_books').then(({ data, error }) => {
-        if (data) {
-            try {
-                arrOfBooks.value = JSON.parse(data[0].user_books)
-            } catch {
-                console.log(error)
-            }
-            finally {
-                isLoaded.value = true
-            }
-        } else {
-            console.log("No data")
-        }
+const currentUser = ref<{ [x: string]: any } | null>(null);
 
-    })
+const fetchData = async () => {
+    try {
+        const { data: userData } = await supabase
+            .from("users")
+            .select()
+            .eq("username", route.params.username)
+            .single()
+        if (userData !== undefined) currentUser.value = userData
+        fetchReviews()
+    } catch (error) {
+        console.log(error);
+    } finally {
+        isUserLoaded.value = true
+    }
+}
+
+const fetchReviews = async () => {
+    if (isUserLoaded) {
+        await supabase.from('users').select('user_books').then(({ data, error }) => {
+
+            if (data) {
+                try {
+                    arrOfBooks.value = JSON.parse(currentUser.value?.user_books)
+                } catch {
+                    console.log(error)
+                }
+                finally {
+                    isLoaded.value = true
+                }
+            } else {
+                console.log("No data")
+            }
+
+
+        })
+    }
+}
+
+onMounted(() => {
+    fetchData()
 })
 </script>
 
 <template>
-    <div class="mt-10" v-if="isLoaded">
+    <div class="mt-10" v-if="isLoaded && arrOfBooks.length && arrOfBooks !== null ">
         <div v-show="arrOfBooks[2].book.length === 0">No books</div>
         <div v-for="book in arrOfBooks[2].book">
             <v-card class="mb-2">
@@ -49,4 +76,5 @@ onMounted(async () => {
             </v-card>
         </div>
     </div>
+    <div class="mt-10" v-else>No reviews</div>
 </template>

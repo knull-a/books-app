@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { supabase } from '@/data/supabase';
-import { ref, onMounted, watchEffect } from 'vue';
+import { ref, onMounted, watchEffect, provide } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/users'
 import { useRoute } from 'vue-router';
@@ -11,6 +11,8 @@ const props = defineProps<{
 }>()
 
 const profileAvatars = ref<string>('')
+
+provide(profileAvatars.value, 'profileAvatars')
 
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
@@ -28,7 +30,8 @@ const fetchData = async () => {
             .from("user_avatar")
             .select()
             .eq("owner_id", props.currentUser.id)
-        if (avatarData) {
+        if (avatarData && avatarData.length) {
+            console.log(avatarData);
             profileAvatars.value = avatarData.slice(-1)[0].url
         }
         if (error) {

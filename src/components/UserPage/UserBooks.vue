@@ -75,7 +75,7 @@ onMounted(() => {
         <v-col cols="6">
             <v-window v-model="tab">
                 <v-window-item style="min-width: 600px">
-                    <div v-if="!arrOfBooks">No books</div>
+                    <div v-if="!arrOfBooks || arrOfBooks === null || !arrOfBooks.length">No books</div>
                     <div v-else>
                         <v-col class="d-flex" v-for="book in arrOfBooks[0].book">
                             <RouterLink style="min-width: 600px" :to="`/book/${book.id}`">
@@ -87,24 +87,28 @@ onMounted(() => {
                     </div>
                 </v-window-item>
                 <v-window-item style="min-width: 600px">
-                    <div v-show="arrOfBooks[1].book.length === 0">No books</div>
-                    <v-col v-for="book in arrOfBooks[1].book">
-                        <RouterLink :to="`/book/${book.id}`">
-                            <v-img width="130" height="200" cover :src="book.image" alt="Thumbnail"></v-img>
-                            <h4>{{ book.title }}</h4>
-                            <p>{{ book.author[0] }}</p>
-                        </RouterLink>
-                    </v-col>
+                    <div v-if="!arrOfBooks || arrOfBooks === null || !arrOfBooks.length">No books</div>
+                    <div v-else>
+                        <v-col v-for="book in arrOfBooks[1].book">
+                            <RouterLink :to="`/book/${book.id}`">
+                                <v-img width="130" height="200" cover :src="book.image" alt="Thumbnail"></v-img>
+                                <h4>{{ book.title }}</h4>
+                                <p>{{ book.author[0] }}</p>
+                            </RouterLink>
+                        </v-col>
+                    </div>
                 </v-window-item>
                 <v-window-item style="min-width: 600px">
-                    <div v-show="arrOfBooks[2].book.length === 0">No books</div>
-                    <v-col v-for="book in arrOfBooks[2].book">
-                        <RouterLink :to="`/book/${book.id}`">
-                            <v-img width="130" height="200" cover :src="book.image" alt="Thumbnail"></v-img>
-                            <h4>{{ book.title }}</h4>
-                            <p>{{ book.author[0] }}</p>
-                        </RouterLink>
-                    </v-col>
+                    <div v-if="!arrOfBooks || arrOfBooks === null || !arrOfBooks.length">No books</div>
+                    <div v-else>
+                        <v-col v-for="book in arrOfBooks[2].book">
+                            <RouterLink :to="`/book/${book.id}`">
+                                <v-img width="130" height="200" cover :src="book.image" alt="Thumbnail"></v-img>
+                                <h4>{{ book.title }}</h4>
+                                <p>{{ book.author[0] }}</p>
+                            </RouterLink>
+                        </v-col>
+                    </div>
                 </v-window-item>
             </v-window>
             <RouterView />
