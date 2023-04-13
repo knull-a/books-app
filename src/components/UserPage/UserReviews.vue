@@ -29,24 +29,26 @@ const fetchData = async () => {
 }
 
 const fetchReviews = async () => {
-    if (isUserLoaded) {
-        await supabase.from('users').select('user_books').then(({ data, error }) => {
+    if (isUserLoaded && currentUser.value) {
+        const { data, error } = await supabase
+            .from("user_books")
+            .select()
+            .eq("owner_id", currentUser.value?.id)
+        if (data) {
+            try {
+                arrOfBooks.value = JSON.parse(data.slice(-1)[0].user_books)
 
-            if (data) {
-                try {
-                    arrOfBooks.value = JSON.parse(currentUser.value?.user_books)
-                } catch {
-                    console.log(error)
-                }
-                finally {
-                    isLoaded.value = true
-                }
-            } else {
-                console.log("No data")
+            } catch {
+                console.log(error)
             }
+            finally {
+                isLoaded.value = true
+            }
+        } else {
+            console.log("No data")
+        }
 
 
-        })
     }
 }
 
@@ -56,7 +58,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="mt-10" v-if="isLoaded && arrOfBooks.length && arrOfBooks !== null ">
+    <div class="mt-10" v-if="isLoaded && arrOfBooks.length && arrOfBooks !== null">
         <div v-show="arrOfBooks[2].book.length === 0">No books</div>
         <div v-for="book in arrOfBooks[2].book">
             <v-card class="mb-2">
@@ -65,7 +67,7 @@ onMounted(() => {
                     <p class="mb-2" style="font-size: 1.5rem">{{ useStarRating(book.bookReview?.rating as number) }}</p>
                     <p>{{ book.bookReview?.text }}</p>
                 </v-card-text>
-                
+
                 <v-card-item>
                     <RouterLink :to="`/book/${book.id}`">
                         <v-img width="130" height="200" cover :src="book.image" alt="Thumbnail"></v-img>

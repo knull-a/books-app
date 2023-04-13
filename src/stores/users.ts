@@ -151,11 +151,24 @@ export const useUserStore = defineStore("user", () => {
     };
     isUserLoading.value = false;
   };
+  // const getUserBook = async (books: BookArray[]) => {
+  //   const { data, error } = await supabase
+  //     .from("users")
+  //     .update({ user_books: JSON.stringify(books) })
+  //     .eq("email", user?.value?.email);
+  //   if (error) {
+  //     console.log(error);
+  //   } else {
+  //     console.log(data);
+  //   }
+  // };
   const getUserBook = async (books: BookArray[]) => {
     const { data, error } = await supabase
-      .from("users")
-      .update({ user_books: JSON.stringify(books) })
-      .eq("email", user?.value?.email);
+      .from("user_books")
+      .insert({
+        user_books: JSON.stringify(books),
+        owner_id: user.value?.id
+      })
     if (error) {
       console.log(error);
     } else {

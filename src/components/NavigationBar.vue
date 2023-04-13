@@ -4,20 +4,16 @@ import { RouterLink } from 'vue-router';
 import { ref, watchEffect, inject } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/users';
+import { useUserAvatarStore } from '@/stores/userAvatar';
 import AuthPage from './AuthPage.vue';
 
-const profileAvatars = inject('profileAvatars')
-
 const userStore = useUserStore()
-
+const userAvatarStore = useUserAvatarStore()
 const { user } = storeToRefs(userStore)
+
 
 const drawer = ref(true)
 const rail = ref(true)
-
-watchEffect(() => console.log(user.value))
-
-console.log(user.value)
 
 </script>
 
@@ -25,7 +21,7 @@ console.log(user.value)
     <v-card>
         <v-navigation-drawer permanent v-model="drawer" :rail="rail" @click="rail = false">
             <RouterLink v-if="user" :to="`/user/${user.username}`">
-                <v-list-item :prepend-avatar="profileAvatars ? `https://dimgfhkbhgxjqybowbmf.supabase.co/storage/v1/object/public/profile-picture/${profileAvatars}` : 'https://i.ibb.co/jw7MWpz/no-avatar.png'"
+                <v-list-item :prepend-avatar="userAvatarStore.profileAvatars.length !== 0 ? `https://dimgfhkbhgxjqybowbmf.supabase.co/storage/v1/object/public/profile-picture/${userAvatarStore.profileAvatars}` : 'https://i.ibb.co/jw7MWpz/no-avatar.png'"
                     :title="user.username" nav>
                 </v-list-item>
             </RouterLink>

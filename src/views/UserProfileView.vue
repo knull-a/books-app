@@ -123,6 +123,7 @@ watch(user, () => {
     fetchIsFollowing()
 })
 
+
 </script>
 <template>
     <v-container v-if="!userStore.isUserLoading && !isLoading">
@@ -141,11 +142,10 @@ watch(user, () => {
             </div>
         </div>
         <v-row class="justify-center">
-            <!-- todo: add active to buttons when reloading the page -->
             <v-btn-toggle v-model="toggle" divided>
                 <v-btn @click="router.push(`/user/${route.params.username}/books`)">Books</v-btn>
                 <v-btn @click="router.push(`/user/${route.params.username}/reviews`)">Reviews</v-btn>
-                <v-btn @click="router.push(`/user/${route.params.username}/contacts`)">Contacts</v-btn>
+                <!-- <v-btn @click="router.push(`/user/${route.params.username}/contacts`)">Contacts</v-btn> -->
             </v-btn-toggle>
         </v-row>
 

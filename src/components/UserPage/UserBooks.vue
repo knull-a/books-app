@@ -4,7 +4,7 @@ import { supabase } from '@/data/supabase';
 import type { BookArray } from '@/types/book';
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import type { User } from "@/types/user" 
+import type { User } from "@/types/user"
 const route = useRoute()
 const tab = ref(null)
 const arrOfBooks = ref<BookArray[]>([])
@@ -30,26 +30,31 @@ const fetchData = async () => {
 }
 
 const fetchBooks = async () => {
-    if (isUserLoaded) {
-        await supabase.from('users').select('user_books').then(({ data, error }) => {
+    if (isUserLoaded && currentUser.value) {
+        const { data, error } = await supabase
+            .from("user_books")
+            .select()
+            .eq("owner_id", currentUser.value?.id)
+        if (data) {
+            try {
+                // console.log(data.slice(-1)[0].user_books);
+                arrOfBooks.value = JSON.parse(data.slice(-1)[0].user_books)
+                console.log(arrOfBooks.value);
 
-            if (data) {
-                try {
-                    arrOfBooks.value = JSON.parse(currentUser.value?.user_books)
-                } catch {
-                    console.log(error)
-                }
-                finally {
-                    isLoaded.value = true
-                }
-            } else {
-                console.log("No data")
+            } catch {
+                console.log(error)
             }
+            finally {
+                isLoaded.value = true
+            }
+        } else {
+            console.log("No data")
+        }
 
 
-        })
     }
 }
+
 
 onMounted(() => {
     fetchData()

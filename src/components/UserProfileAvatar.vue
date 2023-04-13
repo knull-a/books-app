@@ -3,6 +3,7 @@ import { supabase } from '@/data/supabase';
 import { ref, onMounted, watchEffect, provide } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useUserStore } from '@/stores/users'
+import { useUserAvatarStore } from '@/stores/userAvatar';
 import { useRoute } from 'vue-router';
 
 const props = defineProps<{
@@ -10,11 +11,9 @@ const props = defineProps<{
     isUserLoaded: boolean
 }>()
 
-const profileAvatars = ref<string>('')
-
-provide(profileAvatars.value, 'profileAvatars')
 
 const userStore = useUserStore()
+const userAvatarStore = useUserAvatarStore()
 const { user } = storeToRefs(userStore)
 
 const profilePicture = ref<File>()
@@ -32,7 +31,7 @@ const fetchData = async () => {
             .eq("owner_id", props.currentUser.id)
         if (avatarData && avatarData.length) {
             console.log(avatarData);
-            profileAvatars.value = avatarData.slice(-1)[0].url
+            userAvatarStore.profileAvatars = avatarData.slice(-1)[0].url
         }
         if (error) {
             console.log(error);
@@ -61,8 +60,8 @@ const handleImage = async (e: Event) => {
                     url: dataPath,
                     owner_id: user?.value?.id,
                 })
-                profileAvatars.value = (dataPath as string)
-                console.log(profileAvatars.value, 'upload avatar');
+                userAvatarStore.profileAvatars = (dataPath as string)
+                console.log(userAvatarStore.profileAvatars, 'upload avatar');
             }
         }
     } catch (error) {
@@ -77,7 +76,7 @@ const handleImage = async (e: Event) => {
         <v-alert v-if="errorMessage" title="Alert title" :text="errorMessage" type="error"></v-alert>
         <label for="avatar">
             <v-img style="cursor: pointer;" class="rounded-circle" width="200" aspect-ratio="1" cover
-                :src="profileAvatars ? `https://dimgfhkbhgxjqybowbmf.supabase.co/storage/v1/object/public/profile-picture/${profileAvatars}` : 'https://i.ibb.co/jw7MWpz/no-avatar.png'">
+                :src="userAvatarStore.profileAvatars ? `https://dimgfhkbhgxjqybowbmf.supabase.co/storage/v1/object/public/profile-picture/${userAvatarStore.profileAvatars}` : 'https://i.ibb.co/jw7MWpz/no-avatar.png'">
             </v-img>
         </label>
         <input type="file" accept="image/png, image/jpeg" id="avatar" @change="handleImage" hidden>

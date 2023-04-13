@@ -11,6 +11,8 @@ import type { SingleBook, BookArray } from '@/types/book'
 import { supabase } from "@/data/supabase";
 import { useUserStore } from "@/stores/users";
 
+
+
 const userStore = useUserStore()
 
 const route = useRoute()
@@ -167,11 +169,38 @@ const confirmRatingModal = () => {
     isConfirm.value = false
 }
 
-onMounted(async () => {
-    await supabase.from('users').select('user_books').then(({ data, error }) => {
+const isUserLoaded = ref(false)
+
+const currentUser = ref<{ [x: string]: any } | null>(null);
+
+const fetchData = async () => {
+    try {
+        const { data: userData } = await supabase
+            .from("users")
+            .select()
+            .eq("id", userStore.user?.id)
+            .single()
+        if (userData !== undefined) currentUser.value = userData
+        fetchBooks()
+    } catch (error) {
+        console.log(error);
+    } finally {
+        isUserLoaded.value = true
+    }
+}
+
+const fetchBooks = async () => {
+    if (isUserLoaded && currentUser.value) {
+        const { data, error } = await supabase
+            .from("user_books")
+            .select()
+            .eq("owner_id", currentUser.value?.id)
         if (data) {
             try {
-                arrOfBooks.value = JSON.parse(data[0].user_books)
+                // console.log(data.slice(-1)[0].user_books);
+                arrOfBooks.value = JSON.parse(data.slice(-1)[0].user_books)
+                console.log(arrOfBooks.value);
+
             } catch {
                 console.log(error)
             }
@@ -182,7 +211,12 @@ onMounted(async () => {
             console.log("No data")
         }
 
-    })
+
+    }
+}
+
+onMounted(() => {
+    fetchData()
 })
 
 </script>
