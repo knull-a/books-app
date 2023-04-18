@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router';
 import { ref, onMounted, provide, watchEffect, watch } from 'vue';
 import { supabase } from '@/data/supabase';
 import UserProfileAvatar from '@/components/UserProfileAvatar.vue';
+import UserFollowersFollowingInfo from '@/components/UserPage/UserFollowersFollowingInfo.vue'
 
 interface UserInfo {
     followers: number | null
@@ -136,8 +137,7 @@ watch(user, () => {
                     <v-btn @click="unfollowUser" variant="outlined" v-else>FOLLOWED</v-btn>
                 </div>
                 <div class="d-flex mt-2">
-                    <span class="mr-1">{{ userInfo.followers }} followers</span>
-                    <span>{{ userInfo.following }} following</span>
+                    <UserFollowersFollowingInfo :userInfo="userInfo" />
                 </div>
             </div>
         </div>
@@ -145,7 +145,6 @@ watch(user, () => {
             <v-btn-toggle v-model="toggle" divided>
                 <v-btn @click="router.push(`/user/${route.params.username}/books`)">Books</v-btn>
                 <v-btn @click="router.push(`/user/${route.params.username}/reviews`)">Reviews</v-btn>
-                <!-- <v-btn @click="router.push(`/user/${route.params.username}/contacts`)">Contacts</v-btn> -->
             </v-btn-toggle>
         </v-row>
 

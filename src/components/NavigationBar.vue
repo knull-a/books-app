@@ -21,7 +21,7 @@ const rail = ref(true)
     <v-card>
         <v-navigation-drawer permanent v-model="drawer" :rail="rail" @click="rail = false">
             <RouterLink v-if="user" :to="`/user/${user.username}`">
-                <v-list-item :prepend-avatar="userAvatarStore.profileAvatars.length !== 0 ? `https://dimgfhkbhgxjqybowbmf.supabase.co/storage/v1/object/public/profile-picture/${userAvatarStore.profileAvatars}` : 'https://i.ibb.co/jw7MWpz/no-avatar.png'"
+                <v-list-item :prepend-avatar="userAvatarStore.profileAvatars ? `https://dimgfhkbhgxjqybowbmf.supabase.co/storage/v1/object/public/profile-picture/${userAvatarStore.profileAvatars}` : 'https://i.ibb.co/jw7MWpz/no-avatar.png'"
                     :title="user.username" nav>
                 </v-list-item>
             </RouterLink>
