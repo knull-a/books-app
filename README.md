@@ -1,4 +1,4 @@
-# books-app
+# books-search
 
 Books app using TypeScript, Vue 3 Composition API, Pinia, Supabase
 
